@@ -34,14 +34,16 @@ namespace GameObject
     {
         SimpleObject()
         {
-            position = nullptr;
-            size = nullptr;
+            position = new Vec2(0, 0);
+            size = new Vec2(0, 0);
+            center = new Vec2(0, 0);
         }
 
         ~SimpleObject()
         {
             delete position;
             delete size;
+            delete center;
         }
 
         void SetPosition(float x, float y)

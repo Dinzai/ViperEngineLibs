@@ -86,4 +86,5 @@ struct LinkedNodes
 
   Node start;
 };
+
 }
