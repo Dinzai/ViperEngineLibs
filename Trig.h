@@ -77,6 +77,13 @@ struct SimpleObject {
     center = new Vec2(centerX, centerY);
   }
 
+  void SetCenter(float radius, Vec2& position)
+  {
+    float centerX = position.x + radius;
+    float centerY = position.y + radius;
+    center = new Vec2(centerX, centerY);
+  }
+
   void SetColor(Vec3 &values) { color = new Colour(values); }
 
   Vec2 GetPosition() { return *position; }
@@ -140,20 +147,22 @@ struct Pythagorian {
     }
   }
 
-  bool RectangularCheck(GameObject::SimpleObject &obj1,
-                        GameObject::SimpleObject &obj2) {
+  bool RectangularCheck(GameObject::SimpleObject &obj1, GameObject::SimpleObject &obj2) 
+  {
+    //A
     float halfWidthA = obj1.size->x / 2;
-    float halfWidthB = obj2.size->x / 2;
-
     float halfHeightA = obj1.size->y / 2;
-    float halfHeightB = obj2.size->y / 2;
 
     float leftEdgeA = obj1.center->x - halfWidthA;
     float rightEdgeA = obj1.center->x + halfWidthA;
 
-    float topEdgeA = obj1.center->y -
-                     halfHeightA; // minus because SFML uses - as Up + as down
+    float topEdgeA = obj1.center->y - halfHeightA;
     float bottomEdgeA = obj1.center->y + halfHeightA;
+
+    //B
+
+    float halfHeightB = obj2.size->y / 2;
+    float halfWidthB = obj2.size->x / 2; 
 
     float leftEdgeB = obj2.center->x - halfWidthB;
     float rightEdgeB = obj2.center->x + halfWidthB;
@@ -175,5 +184,79 @@ struct Pythagorian {
     }
     return true;
   }
+
+
+  bool RectangularToCircleCheck(GameObject::SimpleObject &obj1,
+                        GameObject::SimpleObject &obj2)
+  {
+
+    //object A
+
+    float halfWidthA = obj1.size->x / 2;
+    float halfHeightA = obj1.size->y / 2;
+ 
+    float leftEdgeA = obj1.center->x - halfWidthA;
+    float rightEdgeA = obj1.center->x + halfWidthA;
+
+    float topEdgeA = obj1.center->y - halfHeightA; 
+    float bottomEdgeA = obj1.center->y + halfHeightA;
+
+    //Object B
+
+    float radius = obj2.radius;
+
+    float centerX = obj2.center->x;
+    float centerY = obj2.center->y;
+
+    float leftEdgeB = centerX - radius;
+    float rightEdgeB = centerX +  radius;
+
+    float topEdgeB = centerY - radius;
+    float bottomEdgeB = centerY + radius;
+
+    if (rightEdgeA < leftEdgeB) {
+      return false;
+    }
+    if (leftEdgeA > rightEdgeB) {
+      return false;
+    }
+    if (topEdgeA > bottomEdgeB) {
+      return false;
+    }
+    if (bottomEdgeA < topEdgeB) {
+      return false;
+    }
+    return true;
+  }
+
 };
-} // namespace Trig
+} 
+
+namespace PRandom
+{
+
+  struct Random
+  {
+      int RandomInt(int min, int max)
+      {
+        int difference = max - min;
+        int random = rand() % difference + min;
+        return random; 
+      }
+
+      GameObject::Vec2 RandomVec(GameObject::Vec2& min, GameObject::Vec2& max)
+      {
+
+        int differenceX = max.x - min.x;
+        int differenceY = max.y - min.y;
+
+        int randomX = rand() % differenceX + min.x;
+        int randomY = rand() % differenceY + min.y;
+
+        GameObject::Vec2 randomVec = GameObject::Vec2(randomX, randomY);
+        return randomVec;
+      }
+  };
+
+  
+}

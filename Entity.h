@@ -53,6 +53,7 @@ struct LinkedEntity
       current->e->SetRadius(radius);
       current->e->SetPosition(position.x, position.y);
       current->e->SetColor(values);
+      current->e->SetCenter(radius, position);
     
 
   }

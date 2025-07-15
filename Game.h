@@ -15,11 +15,11 @@ struct Game {
     GameObject::Vec3 *values = new GameObject::Vec3(0, 255, 0);
 
     GameObject::Vec2 *posF = new GameObject::Vec2(600, 300);
-    GameObject::Vec2 *sizeF = new GameObject::Vec2(20, 20);
+    float sizeF = 10; //new GameObject::Vec2(20, 20);
     GameObject::Vec3 *valuesF = new GameObject::Vec3(255, 0, 0);
 
     b.SetEntity(*pos, *size, *values);
-    b.SetEntity(*posF, *sizeF, *valuesF);
+    b.SetEntity(*posF, sizeF, *valuesF);
 
     player = b.manyEntity.GetNode(1);
     fruit = b.manyEntity.GetNode(2);
@@ -28,7 +28,7 @@ struct Game {
 private:
   void CheckCollision() {
     if (fruit) {
-      if (calc.RectangularCheck(*player, *fruit)) {
+      if (calc.RectangularToCircleCheck(*player, *fruit)) {
         std::cout << "hit!" << '\n';
         int i = fruit->index;
         b.RemoveEntity(i);
@@ -55,9 +55,9 @@ private:
     player->SetCenter(*player->size, *player->position);
     screen.mainClock.restart();
 
-    std::cout << "Player index:" << player->index << '\n';
+    
     if(fruit)
-        std::cout << "Fruit index:" << fruit->index << '\n';
+        std::cout << "Fruit center:" << fruit->center->x << ' ' << fruit->center->y << '\n';
   }
 
   void FixedUpdate() {
@@ -72,7 +72,7 @@ private:
     screen.window.clear();
     screen.window.draw(screen.MakeDrawableRect(*player));
     if (fruit)
-      screen.window.draw(screen.MakeDrawableRect(*fruit));
+      screen.window.draw(screen.MakeDrawableCircle(*fruit));
     screen.window.display();
   }
 
