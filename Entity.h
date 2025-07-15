@@ -8,7 +8,7 @@ struct Entity : public GameObject::SimpleObject
         e = nullptr;
     }
 
-    float speed = 200;
+    float speed = 500;
     Entity* e;
 
 };
@@ -20,19 +20,39 @@ struct LinkedEntity
 
   ~LinkedEntity() {}
 
-  void AddEntity() {
+  void AddEntity(GameObject::Vec2& position, GameObject::Vec2& size, GameObject::Vec3& values) 
+  {
     Entity *current = &start;
 
     while (current->e != nullptr) 
     {
-      current->e->SetSize(10, 10);
-      current->e->SetPosition(200, 200);
       current = current->e;
     }
+      index++;
+      current->e = new Entity();
+      current->e->SetIndex(index);
+      current->e->SetSize(size.x, size.y);
+      current->e->SetPosition(position.x, position.y);
+      current->e->SetColor(values);
+      current->e->SetCenter(size, position);
+    
 
-    current->e = new Entity();
-    current->e->SetSize(10, 10);
-    current->e->SetPosition(200, 200);
+  }
+
+  void AddEntity(GameObject::Vec2& position, float radius, GameObject::Vec3& values) 
+  {
+    Entity *current = &start;
+
+    while (current->e != nullptr) 
+    {
+      current = current->e;
+    }
+      index++;
+      current->e = new Entity();
+      current->e->SetIndex(index);
+      current->e->SetRadius(radius);
+      current->e->SetPosition(position.x, position.y);
+      current->e->SetColor(values);
     
 
   }
@@ -61,6 +81,7 @@ struct LinkedEntity
         start.e = nodeToRemove->e;
         nodeToRemove->e = nullptr;
         delete nodeToRemove;
+        index--;
       }
       return;
     }
@@ -79,9 +100,10 @@ struct LinkedEntity
     current->e = nodeToRemove->e;
     nodeToRemove->e = nullptr;
     delete nodeToRemove;
+    index--;
   }
 
 
-
+  int index = 0;
   Entity start;
 };

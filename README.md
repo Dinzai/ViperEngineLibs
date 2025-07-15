@@ -15,4 +15,6 @@
  In time I will be making a simple game of snake in this framework as a proof of concept. As a working
  programmer, I will get to it, when I get to it. 
 
+Currently, the fruit can be eaten
+
  

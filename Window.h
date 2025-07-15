@@ -1,6 +1,7 @@
 
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
@@ -25,18 +26,37 @@ struct Screen
     }
 
 
-    sf::RectangleShape MakeDrawable(Entity& obj)
+    sf::RectangleShape MakeDrawableRect(Entity& obj)
     {
         sf::RectangleShape shape;
         sf::Vector2f size;
         sf::Vector2f position;
         sf::Color color;
 
-        color = sf::Color::Red;
+        color = sf::Color(obj.color->r, obj.color->g, obj.color->b, obj.color->a); 
         size = sf::Vector2f(sf::Vector2f(obj.size->x, obj.size->y));     
         position = sf::Vector2f(obj.position->x, obj.position->y);   
         
         shape.setSize(size);
+        shape.setPosition(position);
+        shape.setFillColor(color);
+
+        return shape;
+
+    }
+
+    sf::CircleShape MakeDrawableCircle(Entity& obj)
+    {
+        sf::CircleShape shape;
+        float radius;
+        sf::Vector2f position;
+        sf::Color color;
+
+        color = sf::Color(obj.color->r, obj.color->g, obj.color->b, obj.color->a); 
+        radius = obj.radius;    
+        position = sf::Vector2f(obj.position->x, obj.position->y);   
+        
+        shape.setRadius(radius);
         shape.setPosition(position);
         shape.setFillColor(color);
 
