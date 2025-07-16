@@ -14,94 +14,179 @@
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/VideoMode.hpp>
 
-
 #include "Entity.h"
+#include <iostream>
 
+struct Chunk : public sf::RectangleShape {
+  Chunk() { c = nullptr; }
 
+  Chunk *c;
+};
 
+struct LinkedChunk {
 
-struct Screen
+  LinkedChunk() {}
+
+  ~LinkedChunk()
 {
-
-    Screen() : window(sf::VideoMode(ScreenWidth, ScreenHeight), "Example")
+    Chunk* current = start.c;
+    while (current != nullptr)
     {
+        Chunk* next = current->c;
+        delete current;
+        current = next;
+    }
+    start.c = nullptr;
+}
 
+
+  void AddEntity(sf::RectangleShape &shape) {
+    Chunk *current = &start;
+
+    while (current->c != nullptr) {
+      current = current->c;
     }
 
+    current->c = new Chunk();
+    current->c->setSize(shape.getSize());
+    current->c->setPosition(shape.getPosition());
+    current->c->setFillColor(sf::Color::Black);
+    current->c->setOutlineThickness(1.2);
+    current->c->setOutlineColor(sf::Color::White);
+  }
 
-    sf::RectangleShape MakeDrawableRect(Entity& obj)
-    {
-        sf::RectangleShape shape;
-        sf::Vector2f size;
-        sf::Vector2f position;
-        sf::Color color;
+  Chunk *GetNode(int index) {
+    Chunk *current = &start;
+    for (int i = 0; i < index; i++) {
+      if (current->c == nullptr)
+        return nullptr;
 
-        color = sf::Color(obj.color->r, obj.color->g, obj.color->b, obj.color->a); 
-        size = sf::Vector2f(sf::Vector2f(obj.size->x, obj.size->y));     
-        position = sf::Vector2f(obj.position->x, obj.position->y);   
-        
-        shape.setSize(size);
-        shape.setPosition(position);
-        shape.setFillColor(color);
+      current = current->c;
+    }
+    return current;
+  }
 
-        return shape;
+  void RemoveNode(int index) {
+    if (index < 0)
+      return;
 
+    if (index == 0) {
+      Chunk *nodeToRemove = start.c;
+      if (nodeToRemove != nullptr) {
+        start.c = nodeToRemove->c;
+        nodeToRemove->c = nullptr;
+        delete nodeToRemove;
+      }
+      return;
     }
 
-    sf::CircleShape MakeDrawableCircle(Entity& obj)
-    {
-        sf::CircleShape shape;
-        float radius;
-        sf::Vector2f position;
-        sf::Color color;
-
-        color = sf::Color(obj.color->r, obj.color->g, obj.color->b, obj.color->a); 
-        radius = obj.radius;    
-        position = sf::Vector2f(obj.position->x, obj.position->y);   
-        
-        shape.setRadius(radius);
-        shape.setPosition(position);
-        shape.setFillColor(color);
-
-        return shape;
-
+    Chunk *current = &start;
+    for (int i = 0; i < index; i++) {
+      if (current->c == nullptr)
+        return;
+      current = current->c;
     }
 
-    sf::RectangleShape MakeChunk()
-    {
-        GameObject::Vec2* windowSize = new GameObject::Vec2(ScreenWidth, ScreenHeight);
-        Euler::Grid grid;
-        GameObject::Vec2 newSize = grid.CalculateGridChunk(*windowSize);
-        sf::RectangleShape shape;
-        shape.setSize(sf::Vector2f(newSize.x, newSize.y));
-        shape.setFillColor(sf::Color::Black);
-        shape.setOutlineThickness(0.8);
-        shape.setOutlineColor(sf::Color::White);
-        return shape;
+    Chunk *nodeToRemove = current->c;
+    if (nodeToRemove == nullptr)
+      return;
+
+    current->c = nodeToRemove->c;
+    nodeToRemove->c = nullptr;
+    delete nodeToRemove;
+    index--;
+  }
+
+  void DrawAll(sf::RenderWindow &window) 
+  {
+  Chunk *current = start.c;
+  int maxChunks = 10000; // sanity cap
+  int counter = 0;
+
+  while (current != nullptr && counter < maxChunks) {
+    window.draw(*current);
+    current = current->c;
+    counter++;
+  }
+
+  
+}
+
+  Chunk start;
+};
+
+struct Screen {
+
+  Screen() : window(sf::VideoMode(ScreenWidth, ScreenHeight), "Example") {
+    chunks = new LinkedChunk();
+  }
+
+  sf::RectangleShape MakeDrawableRect(Entity &obj) {
+    sf::RectangleShape shape;
+    sf::Vector2f size;
+    sf::Vector2f position;
+    sf::Color color;
+
+    color = sf::Color(obj.color->r, obj.color->g, obj.color->b, obj.color->a);
+    size = sf::Vector2f(sf::Vector2f(obj.size->x, obj.size->y));
+    position = sf::Vector2f(obj.position->x, obj.position->y);
+
+    shape.setSize(size);
+    shape.setPosition(position);
+    shape.setFillColor(color);
+
+    return shape;
+  }
+
+  sf::CircleShape MakeDrawableCircle(Entity &obj) {
+    sf::CircleShape shape;
+    float radius;
+    sf::Vector2f position;
+    sf::Color color;
+
+    color = sf::Color(obj.color->r, obj.color->g, obj.color->b, obj.color->a);
+    radius = obj.radius;
+    position = sf::Vector2f(obj.position->x, obj.position->y);
+
+    shape.setRadius(radius);
+    shape.setPosition(position);
+    shape.setFillColor(color);
+
+    return shape;
+  }
+
+  sf::RectangleShape MakeChunk() 
+  {
+
+    GameObject::Vec2 *windowSize =
+        new GameObject::Vec2(ScreenWidth, ScreenHeight);
+    Euler::Grid grid;
+    GameObject::Vec2 newSize = grid.CalculateGridChunk(*windowSize);
+    sf::RectangleShape shape;
+    shape.setSize(sf::Vector2f(newSize.x, newSize.y));
+    shape.setFillColor(sf::Color::Black);
+    shape.setOutlineThickness(0.8);
+    shape.setOutlineColor(sf::Color::White);
+    return shape;
+  }
+
+  void MakeGrid(int worldWidth, int worldHeight, float offset) {
+    for (int i = 0; i < worldWidth; i++) {
+      for (int j = 0; j < worldHeight; j++) {
+        sf::RectangleShape chunk = MakeChunk();
+        chunk.setPosition(i * chunk.getSize().x + offset,
+                          j * chunk.getSize().y + offset);
+        // Look at Entity.h, implmement chunks the same way
+        chunks->AddEntity(chunk);
+      }
     }
+  }
 
+  // think about draw layers
 
-	void MakeGrid(int worldWidth, int worldHeight, float offset)
-	{
-		for (int i = 0; i < worldWidth; i++)
-		{
-			for (int j = 0; j < worldHeight; j++)
-			{
-				sf::RectangleShape chunk = MakeChunk();
-				chunk.setPosition(i * chunk.getSize().x + offset, j * chunk.getSize().y + offset);
-                //Look at Entity.h, implmement chunks the same way
-			}
-		}
-
-	}
-
-    
-
-    //think about draw layers
-
-    sf::Clock mainClock;
-    sf::Time deltaTime;
-    sf::Event event;
-    sf::RenderWindow window;
-
+  sf::Clock mainClock;
+  sf::Time deltaTime;
+  sf::Event event;
+  sf::RenderWindow window;
+  LinkedChunk *chunks;
 };

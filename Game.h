@@ -3,6 +3,7 @@
 #include "Entity.h"
 #include "Window.h"
 #include "iostream"
+#include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Window.hpp>
@@ -24,6 +25,12 @@ struct Game {
     player = b.manyEntity.GetNode(1);
     fruit = b.manyEntity.GetNode(2);
 
+    chunk = screen.MakeChunk();
+    int numChunksX = ScreenWidth / chunk.getSize().x;
+    int numChunksY = ScreenHeight / chunk.getSize().y;
+
+
+    screen.MakeGrid(numChunksX, numChunksY, 0);
 
     
   }
@@ -71,6 +78,8 @@ private:
 
   void DrawToScreen() {
     screen.window.clear();
+
+    screen.chunks->DrawAll(screen.window);
     screen.window.draw(screen.MakeDrawableRect(*player));
     if (fruit)
       screen.window.draw(screen.MakeDrawableCircle(*fruit));
@@ -95,4 +104,5 @@ private:
   Entity *player;
   Entity *fruit;
   Trig::Pythagorian calc;
+  sf::RectangleShape chunk;
 };
