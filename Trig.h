@@ -13,7 +13,7 @@ this file is for reuseable vector math caluclations
 #include <math.h>
 
 namespace GameObject {
-
+//remove Vec2's, and Vec3's from GameObject namespace, should be categorized seperatly 
 struct Vec2 {
   Vec2(float a, float b) {
     this->x = a;
@@ -110,7 +110,50 @@ struct SimpleObject {
 
 } // namespace GameObject
 
-namespace Trig {
+
+namespace Euler
+{
+
+    struct Grid
+    {
+
+        GameObject::Vec2 CalculateGridChunk(GameObject::Vec2& windowSize)
+        {   
+          
+            if(windowSize.x == windowSize.y)
+            {
+              return windowSize;
+            }
+            GameObject::Vec2 newChunk = GameObject::Vec2(0, 0);
+            if(windowSize.y < windowSize.x)
+            {
+              float nextWidth = windowSize.x - windowSize.y;
+              newChunk = GameObject::Vec2(nextWidth, windowSize.y);
+
+
+            }
+
+            if(windowSize.x < windowSize.y)
+            {
+              float nextHeight = windowSize.y - windowSize.x;
+              newChunk = GameObject::Vec2(windowSize.x, nextHeight);
+
+
+            }
+
+          
+            return CalculateGridChunk(newChunk);
+
+        }
+
+    };
+
+}
+
+
+
+namespace Trig 
+{
 
 struct Pythagorian {
   Pythagorian() {}
@@ -147,9 +190,11 @@ struct Pythagorian {
     }
   }
 
+    //distance check for collision detection between rectangles 
+
   bool RectangularCheck(GameObject::SimpleObject &obj1, GameObject::SimpleObject &obj2) 
   {
-    //A
+    //Object A
     float halfWidthA = obj1.size->x / 2;
     float halfHeightA = obj1.size->y / 2;
 
@@ -159,7 +204,7 @@ struct Pythagorian {
     float topEdgeA = obj1.center->y - halfHeightA;
     float bottomEdgeA = obj1.center->y + halfHeightA;
 
-    //B
+    //Object B
 
     float halfHeightB = obj2.size->y / 2;
     float halfWidthB = obj2.size->x / 2; 
@@ -185,7 +230,7 @@ struct Pythagorian {
     return true;
   }
 
-
+  //distance check for collision detection between rectangles and circles
   bool RectangularToCircleCheck(GameObject::SimpleObject &obj1,
                         GameObject::SimpleObject &obj2)
   {

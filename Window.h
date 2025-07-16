@@ -1,4 +1,7 @@
 
+#define ScreenWidth 800
+#define ScreenHeight 600
+
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
@@ -14,8 +17,8 @@
 
 #include "Entity.h"
 
-#define ScreenWidth 800
-#define ScreenHeight 600
+
+
 
 struct Screen
 {
@@ -63,6 +66,36 @@ struct Screen
         return shape;
 
     }
+
+    sf::RectangleShape MakeChunk()
+    {
+        GameObject::Vec2* windowSize = new GameObject::Vec2(ScreenWidth, ScreenHeight);
+        Euler::Grid grid;
+        GameObject::Vec2 newSize = grid.CalculateGridChunk(*windowSize);
+        sf::RectangleShape shape;
+        shape.setSize(sf::Vector2f(newSize.x, newSize.y));
+        shape.setFillColor(sf::Color::Black);
+        shape.setOutlineThickness(0.8);
+        shape.setOutlineColor(sf::Color::White);
+        return shape;
+    }
+
+
+	void MakeGrid(int worldWidth, int worldHeight, float offset)
+	{
+		for (int i = 0; i < worldWidth; i++)
+		{
+			for (int j = 0; j < worldHeight; j++)
+			{
+				sf::RectangleShape chunk = MakeChunk();
+				chunk.setPosition(i * chunk.getSize().x + offset, j * chunk.getSize().y + offset);
+                //Look at Entity.h, implmement chunks the same way
+			}
+		}
+
+	}
+
+    
 
     //think about draw layers
 

@@ -23,6 +23,9 @@ struct Game {
 
     player = b.manyEntity.GetNode(1);
     fruit = b.manyEntity.GetNode(2);
+
+
+    
   }
 
 private:
@@ -55,9 +58,7 @@ private:
     player->SetCenter(*player->size, *player->position);
     screen.mainClock.restart();
 
-    
-    if(fruit)
-        std::cout << "Fruit center:" << fruit->center->x << ' ' << fruit->center->y << '\n';
+
   }
 
   void FixedUpdate() {
