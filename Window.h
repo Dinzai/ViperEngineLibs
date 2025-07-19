@@ -51,7 +51,7 @@ struct LinkedChunk {
     current->c->setSize(shape.getSize());
     current->c->setPosition(shape.getPosition());
     current->c->setFillColor(sf::Color::Black);
-    current->c->setOutlineThickness(1.2);
+    current->c->setOutlineThickness(2.0);
     current->c->setOutlineColor(sf::Color::White);
   }
 
@@ -100,13 +100,12 @@ struct LinkedChunk {
   void DrawAll(sf::RenderWindow &window) 
   {
   Chunk *current = start.c;
-  int maxChunks = 10000; // sanity cap
-  int counter = 0;
 
-  while (current != nullptr && counter < maxChunks) {
+
+  while (current != nullptr) {
     window.draw(*current);
     current = current->c;
-    counter++;
+
   }
 
   
@@ -134,11 +133,13 @@ struct Screen {
     shape.setSize(size);
     shape.setPosition(position);
     shape.setFillColor(color);
+    shape.setOutlineColor(sf::Color(30, 100, 30));
+    shape.setOutlineThickness(1.2);
 
     return shape;
   }
 
-  sf::CircleShape MakeDrawableCircle(Entity &obj) {
+  sf::CircleShape MakeDrawableCircle(EntityF &obj) {
     sf::CircleShape shape;
     float radius;
     sf::Vector2f position;
@@ -155,13 +156,22 @@ struct Screen {
     return shape;
   }
 
+  void DrawSnake(sf::RenderWindow& window, Screen& screen, LinkedEntity& snakeList) {
+    Entity* current = snakeList.head;
+    while (current != nullptr) {
+        window.draw(screen.MakeDrawableRect(*current));
+        current = current->next;
+    }
+}
+
+
   sf::RectangleShape MakeChunk() 
   {
 
-    GameObject::Vec2 *windowSize =
-        new GameObject::Vec2(ScreenWidth, ScreenHeight);
+    Viper::Vec2 *windowSize =
+        new Viper::Vec2(ScreenWidth, ScreenHeight);
     Euler::Grid grid;
-    GameObject::Vec2 newSize = grid.CalculateGridChunk(*windowSize);
+    Viper::Vec2 newSize = grid.CalculateGridChunk(*windowSize);
     sf::RectangleShape shape;
     shape.setSize(sf::Vector2f(newSize.x, newSize.y));
     shape.setFillColor(sf::Color::Black);

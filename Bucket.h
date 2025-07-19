@@ -11,7 +11,7 @@ struct Bucket
     }
 
 
-    void SetEntity(GameObject::Vec2& position, GameObject::Vec2& size, GameObject::Vec3& values) 
+    void SetEntity(Viper::Vec2& position, Viper::Vec2& size, Viper::Vec3& values) 
     {
         manyEntity.AddEntity(position, size, values);
            
@@ -19,18 +19,19 @@ struct Bucket
 
     void RemoveEntity(int index)
     {
-        manyEntity.RemoveNode(index);
+        otherManyEntity.RemoveNode(index);
     }
 
-    void SetEntity(GameObject::Vec2& position, float radius, GameObject::Vec3& values) 
+    void SetEntity(Viper::Vec2& position, float radius, Viper::Vec3& values) 
     {
-        manyEntity.AddEntity(position, radius, values);
+        otherManyEntity.AddEntity(position, radius, values);
            
     }
 
 
 
     LinkedEntity manyEntity;
+    LinkedEntityF otherManyEntity;
 
 
 };

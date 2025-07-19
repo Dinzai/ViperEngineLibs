@@ -12,9 +12,9 @@ this file is for reuseable vector math caluclations
 #include <cstdlib>
 #include <math.h>
 
-namespace GameObject {
-//remove Vec2's, and Vec3's from GameObject namespace, should be categorized seperatly 
-struct Vec2 {
+namespace Viper
+{
+  struct Vec2 { 
   Vec2(float a, float b) {
     this->x = a;
     this->y = b;
@@ -46,12 +46,16 @@ struct Colour {
 
   float r, g, b, a;
 };
+} 
+
+
+namespace GameObject {
 
 struct SimpleObject {
   SimpleObject() {
-    position = new Vec2(0, 0);
-    size = new Vec2(0, 0);
-    center = new Vec2(0, 0);
+    position = new Viper::Vec2(0, 0);
+    size = new Viper::Vec2(0, 0);
+    center = new Viper::Vec2(0, 0);
   }
 
 
@@ -63,9 +67,9 @@ struct SimpleObject {
 
   void SetIndex(int i) { index = i; }
 
-  void SetPosition(float x, float y) { position = new Vec2(x, y); }
+  void SetPosition(float x, float y) { position = new Viper::Vec2(x, y); }
 
-  void SetCenter(Vec2& size, Vec2& position) 
+  void SetCenter(Viper::Vec2& size, Viper::Vec2& position) 
   {
 
     float halfWidth = size.x / 2;
@@ -74,34 +78,34 @@ struct SimpleObject {
     float centerX = position.x + halfWidth;
     float centerY = position.y + halfHeight;
 
-    center = new Vec2(centerX, centerY);
+    center = new Viper::Vec2(centerX, centerY);
   }
 
-  void SetCenter(float radius, Vec2& position)
+  void SetCenter(float radius, Viper::Vec2& position)
   {
     float centerX = position.x + radius;
     float centerY = position.y + radius;
-    center = new Vec2(centerX, centerY);
+    center = new Viper::Vec2(centerX, centerY);
   }
 
-  void SetColor(Vec3 &values) { color = new Colour(values); }
+  void SetColor(Viper::Vec3 &values) { color = new Viper::Colour(values); }
 
-  Vec2 GetPosition() { return *position; }
+  Viper::Vec2 GetPosition() { return *position; }
 
-  void SetSize(float width, float height) { size = new Vec2(width, height); }
+  void SetSize(float width, float height) { size = new Viper::Vec2(width, height); }
 
-  Vec2 GetSize() { return *size; }
+  Viper::Vec2 GetSize() { return *size; }
 
   void SetRadius(float value) { radius = value; }
 
   float GetRadius() { return radius; }
 
-  Vec2 *position;
-  Vec2 *size;
+  Viper::Vec2 *position;
+  Viper::Vec2 *size;
 
-  Vec2 *center;
+  Viper::Vec2 *center;
 
-  Colour *color;
+  Viper::Colour *color;
 
   float radius;
 
@@ -117,18 +121,18 @@ namespace Euler
     struct Grid
     {
 
-        GameObject::Vec2 CalculateGridChunk(GameObject::Vec2& windowSize)
+        Viper::Vec2 CalculateGridChunk(Viper::Vec2& windowSize)
         {   
           
             if(windowSize.x == windowSize.y)
             {
               return windowSize;
             }
-            GameObject::Vec2 newChunk = GameObject::Vec2(0, 0);
+            Viper::Vec2 newChunk = Viper::Vec2(0, 0);
             if(windowSize.y < windowSize.x)
             {
               float nextWidth = windowSize.x - windowSize.y;
-              newChunk = GameObject::Vec2(nextWidth, windowSize.y);
+              newChunk = Viper::Vec2(nextWidth, windowSize.y);
 
 
             }
@@ -136,7 +140,7 @@ namespace Euler
             if(windowSize.x < windowSize.y)
             {
               float nextHeight = windowSize.y - windowSize.x;
-              newChunk = GameObject::Vec2(windowSize.x, nextHeight);
+              newChunk = Viper::Vec2(windowSize.x, nextHeight);
 
 
             }
@@ -289,7 +293,7 @@ namespace PRandom
         return random; 
       }
 
-      GameObject::Vec2 RandomVec(GameObject::Vec2& min, GameObject::Vec2& max)
+      Viper::Vec2 RandomVec(Viper::Vec2& min, Viper::Vec2& max)
       {
 
         int differenceX = max.x - min.x;
@@ -298,7 +302,7 @@ namespace PRandom
         int randomX = rand() % differenceX + min.x;
         int randomY = rand() % differenceY + min.y;
 
-        GameObject::Vec2 randomVec = GameObject::Vec2(randomX, randomY);
+        Viper::Vec2 randomVec = Viper::Vec2(randomX, randomY);
         return randomVec;
       }
   };

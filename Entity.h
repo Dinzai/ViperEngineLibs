@@ -1,72 +1,59 @@
 #pragma once
 #include "Trig.h"
 
-struct Entity : public GameObject::SimpleObject
-{
-    Entity()
-    {
-        e = nullptr;
-    }
 
-    float speed = 500;
-    Entity* e;
 
+struct EntityF : public GameObject::SimpleObject {
+  EntityF() { e = nullptr; }
+
+  float speed = 50;
+  EntityF *e;
 };
 
-struct LinkedEntity 
-{
+struct LinkedEntityF {
 
-  LinkedEntity() {}
+  LinkedEntityF() {}
 
-  ~LinkedEntity() {}
+  ~LinkedEntityF() {}
 
-  void AddEntity(GameObject::Vec2& position, GameObject::Vec2& size, GameObject::Vec3& values) 
-  {
-    Entity *current = &start;
+  void AddEntity(Viper::Vec2 &position, Viper::Vec2 &size,
+                 Viper::Vec3 &values) {
+    EntityF *current = &start;
 
-    while (current->e != nullptr) 
-    {
+    while (current->e != nullptr) {
       current = current->e;
     }
-      index++;
-      current->e = new Entity();
-      current->e->SetIndex(index);
-      current->e->SetSize(size.x, size.y);
-      current->e->SetPosition(position.x, position.y);
-      current->e->SetColor(values);
-      current->e->SetCenter(size, position);
-    
-
+    index++;
+    current->e = new EntityF();
+    current->e->SetIndex(index);
+    current->e->SetSize(size.x, size.y);
+    current->e->SetPosition(position.x, position.y);
+    current->e->SetColor(values);
+    current->e->SetCenter(size, position);
   }
 
-  void AddEntity(GameObject::Vec2& position, float radius, GameObject::Vec3& values) 
-  {
-    Entity *current = &start;
+  void AddEntity(Viper::Vec2 &position, float radius, Viper::Vec3 &values) {
+    EntityF *current = &start;
 
-    while (current->e != nullptr) 
-    {
+    while (current->e != nullptr) {
       current = current->e;
     }
-      index++;
-      current->e = new Entity();
-      current->e->SetIndex(index);
-      current->e->SetRadius(radius);
-      current->e->SetPosition(position.x, position.y);
-      current->e->SetColor(values);
-      current->e->SetCenter(radius, position);
-    
-
+    index++;
+    current->e = new EntityF();
+    current->e->SetIndex(index);
+    current->e->SetRadius(radius);
+    current->e->SetPosition(position.x, position.y);
+    current->e->SetColor(values);
+    current->e->SetCenter(radius, position);
   }
 
-  Entity* GetNode(int index)
-  {
-    Entity *current = &start;
-    for (int i = 0; i < index; i++) 
-    {
+  EntityF *GetNode(int index) {
+    EntityF *current = &start;
+    for (int i = 0; i < index; i++) {
       if (current->e == nullptr)
         return nullptr;
-     
-       current = current->e;
+
+      current = current->e;
     }
     return current;
   }
@@ -75,36 +62,87 @@ struct LinkedEntity
     if (index < 0)
       return;
 
-    if (index == 0) 
-    {
-      Entity *nodeToRemove = start.e;
+    if (index == 0) {
+      EntityF *nodeToRemove = start.e;
       if (nodeToRemove != nullptr) {
+        index--;
         start.e = nodeToRemove->e;
         nodeToRemove->e = nullptr;
+
         delete nodeToRemove;
-        index--;
       }
       return;
     }
 
-    Entity *current = &start;
+    EntityF *current = &start;
     for (int i = 0; i < index; i++) {
       if (current->e == nullptr)
         return;
       current = current->e;
     }
 
-    Entity *nodeToRemove = current->e;
+    EntityF *nodeToRemove = current->e;
     if (nodeToRemove == nullptr)
       return;
-
+    index--;
     current->e = nodeToRemove->e;
     nodeToRemove->e = nullptr;
     delete nodeToRemove;
-    index--;
   }
 
-
   int index = 0;
-  Entity start;
+  EntityF start;
+};
+
+struct Entity : public GameObject::SimpleObject {
+  Entity() : next(nullptr) {}
+
+  float speed = 350;
+  Entity *next;
+
+};
+
+struct LinkedEntity {
+
+  ~LinkedEntity() {
+    Entity *current = head;
+    while (current) {
+      Entity *next = current->next;
+      delete current;
+      current = next;
+    }
+  }
+
+  void AddEntity(Viper::Vec2 &position, Viper::Vec2 &size,
+                 Viper::Vec3 &values) {
+    Entity *newNode = new Entity();
+    newNode->SetIndex(index++);
+    newNode->SetSize(size.x, size.y);
+    newNode->SetPosition(position.x, position.y);
+    newNode->SetColor(values);
+    newNode->SetCenter(size, position);
+
+    if (!head) {
+      head = newNode;
+      tail = newNode;
+    } else {
+      tail->next = newNode;
+      tail = newNode;
+    }
+  }
+
+  Entity *GetNode(int index) {
+    Entity *current = head;
+    for (int i = 0; i < index; ++i) {
+      if (!current)
+        return nullptr;
+      current = current->next;
+    }
+    return current;
+  }
+
+  Entity *head = nullptr;
+  Entity *tail = nullptr;
+  int index = 0;
+
 };
