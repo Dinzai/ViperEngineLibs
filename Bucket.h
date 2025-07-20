@@ -17,9 +17,11 @@ struct Bucket
            
     }
 
+
+
     void RemoveEntity(int index)
     {
-        otherManyEntity.RemoveNode(index);
+        manyEntity.RemoveNode(index);
     }
 
     void SetEntity(Viper::Vec2& position, float radius, Viper::Vec3& values) 

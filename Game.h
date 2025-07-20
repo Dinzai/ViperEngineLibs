@@ -4,37 +4,12 @@
 #include "Window.h"
 #include "iostream"
 #include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/System/Time.hpp>
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Window.hpp>
 
 struct Game {
-
-  Game() {
-
-    for (int i = 0; i < 4; i++) {
-      direction[i] = false;
-    }
-
-    Viper::Vec2 *pos = new Viper::Vec2(200, 200);
-    Viper::Vec2 *size = new Viper::Vec2(20, 20);
-    Viper::Vec3 *values = new Viper::Vec3(0, 255, 0);
-
-    Viper::Vec2 *posF = new Viper::Vec2(600, 300);
-    float sizeF = 10;
-    Viper::Vec3 *valuesF = new Viper::Vec3(255, 0, 0);
-
-    // set player
-    b.SetEntity(*pos, *size, *values);
-    player = b.manyEntity.GetNode(0);
-
-    // set fruit
-    f.SetEntity(*posF, sizeF, *valuesF);
-
-    fruit = nullptr;
-    direction[0] = true;
-  }
-
 private:
   void SpawnFruit() {
     if (fruit == nullptr) {
@@ -50,82 +25,220 @@ private:
     }
   }
 
+public:
+  Game() {
+
+    for (int i = 0; i < 4; i++) {
+      direction[i] = false;
+    }
+
+    // snake head
+    Viper::Vec2 *pos = new Viper::Vec2(200, 200);
+    Viper::Vec2 *size = new Viper::Vec2(20, 20);
+    Viper::Vec3 *values = new Viper::Vec3(0, 255, 0);
+    Viper::Vec2 *tailPos =
+        new Viper::Vec2(pos->x - size->x - tailOffset, pos->y);
+
+    // fruit
+    Viper::Vec2 *posF = new Viper::Vec2(600, 300);
+    float sizeF = 10;
+    Viper::Vec3 *valuesF = new Viper::Vec3(255, 0, 0);
+
+    b.SetEntity(*pos, *size, *values);
+    b.SetEntity(*tailPos, *size, *values);
+    snake = b.manyEntity.GetNode(0);
+    tail = b.manyEntity.GetNode(1);
+
+    // set fruit
+    f.SetEntity(*posF, sizeF, *valuesF);
+
+    fruit = nullptr;
+    direction[0] = true;
+    snakeSize = b.manyEntity.index - 1;
+    SpawnFruit();
+  }
+
+private:
+  Viper::Vec2 *OutHeadPos() {
+    Viper::Vec2 *headPos;
+
+    if (direction[0]) {
+      Viper::Vec2 *newPos = new Viper::Vec2(
+          snake->position->x - snake->size->x - tailOffset, snake->position->y);
+      headPos = newPos;
+    }
+    if (direction[1]) {
+      Viper::Vec2 *newPos = new Viper::Vec2(
+          snake->position->x + snake->size->x + tailOffset, snake->position->y);
+      headPos = newPos;
+    }
+    if (direction[2]) {
+      Viper::Vec2 *newPos = new Viper::Vec2(
+          snake->position->x, snake->position->y - snake->size->y - tailOffset);
+      headPos = newPos;
+    }
+    if (direction[3]) {
+      Viper::Vec2 *newPos = new Viper::Vec2(
+          snake->position->x, snake->position->y + snake->size->y + tailOffset);
+      headPos = newPos;
+    }
+    return headPos;
+  }
+
+  Viper::Vec2 *OutLastTailPos() {
+    Viper::Vec2 *tailPos;
+
+    if (direction[0]) {
+      Viper::Vec2 *newPos = new Viper::Vec2(
+          tail->position->x - tail->size->x - tailOffset, tail->position->y);
+      tailPos = newPos;
+    }
+    if (direction[1]) {
+      Viper::Vec2 *newPos = new Viper::Vec2(
+          tail->position->x + tail->size->x + tailOffset, tail->position->y);
+      tailPos = newPos;
+    }
+    if (direction[2]) {
+      Viper::Vec2 *newPos = new Viper::Vec2(
+          tail->position->x, tail->position->y - tail->size->y - tailOffset);
+      tailPos = newPos;
+    }
+    if (direction[3]) {
+      Viper::Vec2 *newPos = new Viper::Vec2(
+          tail->position->x, tail->position->y + tail->size->y + tailOffset);
+      tailPos = newPos;
+    }
+    return tailPos;
+  }
+
+  void AddTail()
+  {
+    Viper::Vec3 *values =
+          new Viper::Vec3(snake->color->r, snake->color->g, snake->color->b);
+      if (direction[0]) {
+        Viper::Vec2 *newPos =
+            new Viper::Vec2(tail->position->x - tail->size->x - tailOffset,
+                            tail->position->y);
+        b.manyEntity.AddEntity(*newPos, *tail->size, *values);
+        tail = b.manyEntity.GetNode(b.manyEntity.index - 1);
+      }
+      if (direction[1]) {
+        Viper::Vec2 *newPos =
+            new Viper::Vec2(tail->position->x + tail->size->x + tailOffset,
+                            tail->position->y);
+        b.manyEntity.AddEntity(*newPos, *tail->size, *values);
+        tail = b.manyEntity.GetNode(b.manyEntity.index - 1);
+      }
+      if (direction[2]) {
+        Viper::Vec2 *newPos =
+            new Viper::Vec2(tail->position->x,
+                            tail->position->y - tail->size->y - tailOffset);
+        b.manyEntity.AddEntity(*newPos, *tail->size, *values);
+        tail = b.manyEntity.GetNode(b.manyEntity.index - 1);
+      }
+      if (direction[3]) {
+        Viper::Vec2 *newPos =
+            new Viper::Vec2(tail->position->x,
+                            tail->position->y + tail->size->y + tailOffset);
+        b.manyEntity.AddEntity(*newPos, *tail->size, *values);
+        tail = b.manyEntity.GetNode(b.manyEntity.index - 1);
+      }
+  }
+
+ void UpdateTail() {
+
+    const int maxSnakeLength = 100;
+    Viper::Vec2* oldPositions = new Viper::Vec2[maxSnakeLength]; 
+
+    Entity* current = b.manyEntity.head;
+    int index = 0;
+
+    while (current != nullptr ) {
+        oldPositions[index] = *current->position;
+        current = current->next;
+        index++;
+    }
+
+    current = b.manyEntity.head->next;
+    index = 0;
+    while (current != nullptr) {
+        *current->position = oldPositions[index];
+        current = current->next;
+        index++;
+    }
+}
+
+  void UpdateHead(sf::Time deltaTime) {
+
+    if (direction[0]) {
+
+      Viper::Vec2 *newPos = new Viper::Vec2(
+          snake->position->x + snake->size->x + tailOffset, snake->position->y);
+
+      snake->SetPosition(newPos->x, newPos->y);
+      snake->SetCenter(*snake->size, *snake->position);
+      UpdateTail();
+      
+    }
+
+    if (direction[1]) {
+
+      Viper::Vec2 *newPos = new Viper::Vec2(
+          snake->position->x - snake->size->x - tailOffset, snake->position->y);
+
+      snake->SetPosition(newPos->x, newPos->y);
+      snake->SetCenter(*snake->size, *snake->position);
+      UpdateTail();
+    }
+
+    if (direction[2]) {
+
+      Viper::Vec2 *newPos = new Viper::Vec2(
+          snake->position->x, snake->position->y - snake->size->y - tailOffset);
+
+      snake->SetPosition(newPos->x, newPos->y);
+      snake->SetCenter(*snake->size, *snake->position);
+      UpdateTail();
+    }
+
+    if (direction[3]) {
+
+      Viper::Vec2 *newPos = new Viper::Vec2(
+          snake->position->x, snake->position->y + snake->size->y + tailOffset);
+
+      snake->SetPosition(newPos->x, newPos->y);
+      snake->SetCenter(*snake->size, *snake->position);
+      UpdateTail();
+      
+    }
+  }
+
+  void DrawSnake(Screen &screen, LinkedEntity &snakeList) {
+    Entity *current = snakeList.head;
+    while (current != nullptr) {
+      screen.window.draw(screen.MakeDrawableRect(*current));
+      current = current->next;
+    }
+  }
+
   void CheckCollision() {
-    if (fruit && calc.RectangularToCircleCheck(*player, *fruit)) {
+    if (fruit && calc.RectangularToCircleCheck(*snake, *fruit)) {
 
       fruit = nullptr;
-
-      Entity *prevTail = b.manyEntity.tail;
-      Viper::Vec2 offSet = Viper::Vec2(30, 0);
-      Viper::Vec2 pos = prevTail->GetPosition();
-      Viper::Vec2 actualPos = Viper::Vec2(pos.x - offSet.x, pos.y + offSet.y);
-      Viper::Vec2 *size = new Viper::Vec2(20, 20);
-      Viper::Vec3 *values = new Viper::Vec3(0, 255, 0);
-
-      b.manyEntity.AddEntity(actualPos, *size, *values);
+      AddTail();
+      SpawnFruit();
     }
   }
 
   void Update() {
+
     CheckCollision();
     screen.deltaTime = screen.mainClock.getElapsedTime();
-    delay += screen.deltaTime.asSeconds();
+    if (screen.deltaTime.asSeconds() > 0.12) {
+      UpdateHead(screen.deltaTime);
 
-    for (int i = 0; i < b.manyEntity.index; i++) {
-
-      if (b.manyEntity.GetNode(i)->position->x <
-          ScreenWidth - b.manyEntity.GetNode(i)->size->x)
-        if (direction[0]) {
-          b.manyEntity.GetNode(i)->position->x +=
-              player->speed * screen.deltaTime.asSeconds();
-        }
-      if (b.manyEntity.GetNode(i)->position->x > 0) {
-        if (direction[1]) {
-          b.manyEntity.GetNode(i)->position->x -=
-              player->speed * screen.deltaTime.asSeconds();
-        }
-      }
-      if (b.manyEntity.GetNode(i)->position->y > 0) {
-        if (direction[2]) {
-          b.manyEntity.GetNode(i)->position->y -=
-              player->speed * screen.deltaTime.asSeconds();
-        }
-      }
-      if (b.manyEntity.GetNode(i)->position->y <
-          ScreenHeight - b.manyEntity.GetNode(i)->size->y)
-        if (direction[3]) {
-          b.manyEntity.GetNode(i)->position->y +=
-              player->speed * screen.deltaTime.asSeconds();
-        }
+      screen.mainClock.restart();
     }
-    /*
-    if (player->position->x < ScreenWidth - player->size->x) {
-      if (direction[0]) {
-        player->position->x += player->speed * screen.deltaTime.asSeconds();
-      }
-    }
-    if (player->position->x > 0) {
-      if (direction[1]) {
-        player->position->x -= player->speed * screen.deltaTime.asSeconds();
-      }
-    }
-    if (player->position->y > 0) {
-      if (direction[2]) {
-        player->position->y -= player->speed * screen.deltaTime.asSeconds();
-      }
-    }
-    if (player->position->y < ScreenHeight - player->size->y) {
-      if (direction[3]) {
-        player->position->y += player->speed * screen.deltaTime.asSeconds();
-      }
-    }
-    */
-
-    player->SetCenter(*player->size, *player->position);
-
-    screen.mainClock.restart();
-
-    SpawnFruit();
   }
 
   void FixedUpdate() {
@@ -136,7 +249,7 @@ private:
 
       if (screen.event.type == sf::Event::KeyPressed) {
         if (screen.event.key.code == sf::Keyboard::W) {
-          delay = 0;
+
           direction[0] = false;
           direction[1] = false;
           direction[2] = true;
@@ -144,7 +257,7 @@ private:
         }
 
         if (screen.event.key.code == sf::Keyboard::S) {
-          delay = 0;
+
           direction[0] = false;
           direction[1] = false;
           direction[2] = false;
@@ -152,7 +265,7 @@ private:
         }
 
         if (screen.event.key.code == sf::Keyboard::A) {
-          delay = 0;
+
           direction[0] = false;
           direction[1] = true;
           direction[2] = false;
@@ -160,7 +273,7 @@ private:
         }
 
         if (screen.event.key.code == sf::Keyboard::D) {
-          delay = 0;
+
           direction[0] = true;
           direction[1] = false;
           direction[2] = false;
@@ -173,7 +286,7 @@ private:
   void DrawToScreen() {
     screen.window.clear();
 
-    screen.DrawSnake(screen.window, screen, b.manyEntity);
+    DrawSnake(screen, b.manyEntity);
 
     if (fruit)
       screen.window.draw(screen.MakeDrawableCircle(*fruit));
@@ -197,7 +310,8 @@ private:
   Bucket b;
   Bucket f;
 
-  Entity *player;
+  Entity *snake;
+  Entity *tail;
   EntityF *fruit;
 
   Trig::Pythagorian calc;
@@ -207,7 +321,11 @@ private:
 
   bool direction[4];
 
-  float delay;
+  int tailOffset = 5;
+
+  int snakeSize = 0;
+
+  float delay = 0;
 
   // 0,     1,    2,  3
   // right, left, up, down

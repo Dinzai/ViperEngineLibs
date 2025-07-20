@@ -1,12 +1,12 @@
 #pragma once
 #include "Trig.h"
 
-
+#include <iostream>
 
 struct EntityF : public GameObject::SimpleObject {
   EntityF() { e = nullptr; }
 
-  float speed = 50;
+
   EntityF *e;
 };
 
@@ -97,7 +97,7 @@ struct LinkedEntityF {
 struct Entity : public GameObject::SimpleObject {
   Entity() : next(nullptr) {}
 
-  float speed = 350;
+
   Entity *next;
 
 };
@@ -116,7 +116,8 @@ struct LinkedEntity {
   void AddEntity(Viper::Vec2 &position, Viper::Vec2 &size,
                  Viper::Vec3 &values) {
     Entity *newNode = new Entity();
-    newNode->SetIndex(index++);
+    index++;
+    newNode->SetIndex(index);
     newNode->SetSize(size.x, size.y);
     newNode->SetPosition(position.x, position.y);
     newNode->SetColor(values);
@@ -140,6 +141,44 @@ struct LinkedEntity {
     }
     return current;
   }
+
+  void RemoveNode(int& index) {
+  if (index < 0 || head == nullptr)
+    return;
+
+  
+  if (index == 0) {
+    Entity* nodeToRemove = head;
+    head = head->next;
+    
+    if (head == nullptr)
+      tail = nullptr;
+    delete nodeToRemove;
+    --index;
+    return;
+  }
+
+  
+  Entity* current = head;
+  for (int i = 0; i < index - 1; ++i) {
+    if (current->next == nullptr)
+      return; 
+    current = current->next;
+  }
+
+  Entity* nodeToRemove = current->next;
+  if (nodeToRemove == nullptr)
+    return;
+
+  current->next = nodeToRemove->next;
+  
+  if (nodeToRemove == tail)
+    tail = current;
+  
+  delete nodeToRemove;
+  --index;
+}
+
 
   Entity *head = nullptr;
   Entity *tail = nullptr;

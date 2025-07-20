@@ -156,15 +156,6 @@ struct Screen {
     return shape;
   }
 
-  void DrawSnake(sf::RenderWindow& window, Screen& screen, LinkedEntity& snakeList) {
-    Entity* current = snakeList.head;
-    while (current != nullptr) {
-        window.draw(screen.MakeDrawableRect(*current));
-        current = current->next;
-    }
-}
-
-
   sf::RectangleShape MakeChunk() 
   {
 

@@ -15,6 +15,7 @@ this file is for reuseable vector math caluclations
 namespace Viper
 {
   struct Vec2 { 
+  Vec2() : x(0), y(0) {}  
   Vec2(float a, float b) {
     this->x = a;
     this->y = b;

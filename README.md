@@ -12,9 +12,7 @@
  rather, I challenge you to look into not relying on libaray's just because it is easy. Try to grow,
  make some mistakes, and enjoy the journey. 
 
- In time I will be making a simple game of snake in this framework as a proof of concept. As a working
- programmer, I will get to it, when I get to it. 
 
-Currently, the fruit can be eaten
+Currently, the snake can move, eat, with no boundaires, or death logic, or score
 
  
