@@ -3,10 +3,10 @@ CXXFLAGS = -std=c++17 -Wall -g -MMD -MP -I.
 LDFLAGS = -lsfml-system -lsfml-window -lsfml-graphics
 
 
-SRCS = main.cpp 
+SRCS = main.cpp Montserrat.cpp
 OBJS = $(SRCS:.cpp=.o)
 DEPS = $(OBJS:.o=.d)
-TARGET = Example
+TARGET = Snake
 
 all: $(TARGET)
 

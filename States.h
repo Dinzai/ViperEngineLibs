@@ -6,14 +6,20 @@ Author -> Brett Rogers
 
 */
 
-namespace states
+namespace Snake
 {
 
-    enum GameState
+  struct GameState
+  {
+     enum States
     {
-        Title,
+        Title = 1,
         Game,
         End,
     };
+
+    int currentGameState = 0;
+  };
+   
 
 }

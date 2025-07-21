@@ -1,39 +1,42 @@
 #pragma once
 #include "Entity.h"
 
+struct Bucket {
 
-struct Bucket
-{
+  Bucket() {}
 
-    Bucket()
-    {
+  void SetEntity(Viper::Vec2 &position, Viper::Vec2 &size,
+                 Viper::Vec3 &values) {
+    manyEntity.AddEntity(position, size, values);
+  }
 
+  void RemoveEntity(int index) { manyEntity.RemoveNode(index); }
+
+  void ClearEntities() {
+    Entity *current = manyEntity.head;
+    while (current) {
+      Entity *toDelete = current;
+      current = current->next;
+      delete toDelete;
     }
+    manyEntity.head = nullptr;
+  }
 
+  void SetEntity(Viper::Vec2 &position, float radius, Viper::Vec3 &values) {
+    otherManyEntity.AddEntity(position, radius, values);
+  }
 
-    void SetEntity(Viper::Vec2& position, Viper::Vec2& size, Viper::Vec3& values) 
-    {
-        manyEntity.AddEntity(position, size, values);
-           
+  void ClearOtherEntities() 
+  {
+    EntityF *current = &otherManyEntity.start;
+    while (current) {
+      EntityF *toDelete = current;
+      current = current->e;
+      delete toDelete;
     }
+    manyEntity.head = nullptr;
+  }
 
-
-
-    void RemoveEntity(int index)
-    {
-        manyEntity.RemoveNode(index);
-    }
-
-    void SetEntity(Viper::Vec2& position, float radius, Viper::Vec3& values) 
-    {
-        otherManyEntity.AddEntity(position, radius, values);
-           
-    }
-
-
-
-    LinkedEntity manyEntity;
-    LinkedEntityF otherManyEntity;
-
-
+  LinkedEntity manyEntity;
+  LinkedEntityF otherManyEntity;
 };

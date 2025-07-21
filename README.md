@@ -13,6 +13,6 @@
  make some mistakes, and enjoy the journey. 
 
 
-Currently, the snake can move, eat, with no boundaires, or death logic, or score
+Currently, the game has a bug when restarting the 2nd time, memory leak! 
 
  

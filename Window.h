@@ -1,4 +1,6 @@
 
+#include <SFML/Graphics/Font.hpp>
+#include <SFML/Graphics/Text.hpp>
 #define ScreenWidth 800
 #define ScreenHeight 600
 
@@ -14,6 +16,7 @@
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/VideoMode.hpp>
 
+#include "Basic.h"
 #include "Entity.h"
 #include <iostream>
 
@@ -27,18 +30,15 @@ struct LinkedChunk {
 
   LinkedChunk() {}
 
-  ~LinkedChunk()
-{
-    Chunk* current = start.c;
-    while (current != nullptr)
-    {
-        Chunk* next = current->c;
-        delete current;
-        current = next;
+  ~LinkedChunk() {
+    Chunk *current = start.c;
+    while (current != nullptr) {
+      Chunk *next = current->c;
+      delete current;
+      current = next;
     }
     start.c = nullptr;
-}
-
+  }
 
   void AddEntity(sf::RectangleShape &shape) {
     Chunk *current = &start;
@@ -97,28 +97,53 @@ struct LinkedChunk {
     index--;
   }
 
-  void DrawAll(sf::RenderWindow &window) 
-  {
-  Chunk *current = start.c;
+  void DrawAll(sf::RenderWindow &window) {
+    Chunk *current = start.c;
 
-
-  while (current != nullptr) {
-    window.draw(*current);
-    current = current->c;
-
+    while (current != nullptr) {
+      window.draw(*current);
+      current = current->c;
+    }
   }
-
-  
-}
 
   Chunk start;
 };
 
 struct Screen {
 
-  Screen() : window(sf::VideoMode(ScreenWidth, ScreenHeight), "Example") {
-    chunks = new LinkedChunk();
+  void SetButtons() {
+    startText.SetHeaderText("Press Start", sf::Vector2f(200, 200));
+    endText.SetHeaderText("Try Again?", sf::Vector2f(200, 200));
+    titleButton = Dinzai::Button(startText.theHeaderText);
+    endButton = Dinzai::Button(endText.theHeaderText);
   }
+
+  Screen() : window(sf::VideoMode(ScreenWidth, ScreenHeight), "Snake") {
+    chunks = new LinkedChunk();
+    SetButtons();
+  }
+
+  void UpdateButtons() { titleButton.CheckCollision(mousePos); }
+
+  int FixedUpdateButtons() {
+    if (titleButton.CanClick(event, mousePos)) {
+      return 1;
+    }
+    return 0;
+  }
+
+  void DrawButtons() { startText.DrawHeaderTextToScreen(window); }
+
+  void UpdateEndButtons() { endButton.CheckCollision(mousePos); }
+
+  bool FixedUpdateEndButtons() {
+    if (endButton.CanClick(event, mousePos)) {
+      return true;
+    }
+    return false;
+  }
+
+  void DrawEndButtons() { endText.DrawHeaderTextToScreen(window); }
 
   sf::RectangleShape MakeDrawableRect(Entity &obj) {
     sf::RectangleShape shape;
@@ -156,11 +181,9 @@ struct Screen {
     return shape;
   }
 
-  sf::RectangleShape MakeChunk() 
-  {
+  sf::RectangleShape MakeChunk(Viper::Vec2 &size) {
 
-    Viper::Vec2 *windowSize =
-        new Viper::Vec2(ScreenWidth, ScreenHeight);
+    Viper::Vec2 *windowSize = &size;
     Euler::Grid grid;
     Viper::Vec2 newSize = grid.CalculateGridChunk(*windowSize);
     sf::RectangleShape shape;
@@ -171,13 +194,13 @@ struct Screen {
     return shape;
   }
 
-  void MakeGrid(int worldWidth, int worldHeight, float offset) {
+  void MakeGrid(int worldWidth, int worldHeight, float offset,
+                Viper::Vec2 &chunkSize) {
     for (int i = 0; i < worldWidth; i++) {
       for (int j = 0; j < worldHeight; j++) {
-        sf::RectangleShape chunk = MakeChunk();
+        sf::RectangleShape chunk = MakeChunk(chunkSize);
         chunk.setPosition(i * chunk.getSize().x + offset,
                           j * chunk.getSize().y + offset);
-        // Look at Entity.h, implmement chunks the same way
         chunks->AddEntity(chunk);
       }
     }
@@ -190,4 +213,11 @@ struct Screen {
   sf::Event event;
   sf::RenderWindow window;
   LinkedChunk *chunks;
+
+  Dinzai::AllText startText;
+  Dinzai::AllText endText;
+  sf::Vector2f mousePos;
+
+  Dinzai::Button titleButton;
+  Dinzai::Button endButton;
 };
