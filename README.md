@@ -1,7 +1,7 @@
 # ViperEngineLibs
  Open source Viper engine for Game Design ------------> Snake Game Demo
 
- ![Snake Game!](snakeGame.png)
+ ![Snake Game!](snakeGame.gif)
 
  This is not a comercial engine
 
