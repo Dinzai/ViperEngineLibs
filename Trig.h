@@ -12,6 +12,8 @@ this file is for reuseable vector math caluclations
 #include <cstdlib>
 #include <math.h>
 
+#include "Debug.h"
+
 namespace Viper
 {
   struct Vec2 { 
@@ -47,6 +49,18 @@ struct Colour {
 
   float r, g, b, a;
 };
+
+ inline void Println(const char* s) {
+    Debug::Print{}(s);
+    Debug::Print{}("\n");
+  }
+
+  inline void Println(int n) {
+    Debug::Print{}(n);
+    Debug::Print{}("\n");
+  };
+
+
 } 
 
 

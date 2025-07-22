@@ -1,241 +1,173 @@
 #pragma once
-#include <SFML/Graphics.hpp>
-#include <SFML/Audio.hpp>
-#include <string>
-#include <iostream>
 #include "Montserrat.h"
+#include <SFML/Audio.hpp>
+#include <SFML/Graphics.hpp>
+#include <iostream>
+#include <string>
 
-namespace Dinzai 
-{
+namespace Dinzai {
 
-	struct SoftAssetManager
-	{
-	
-		SoftAssetManager() 
-		{
-			
-		}
+struct SoftAssetManager {
 
-		sf::Font PassFont(std::string filePath) 
-		{
-			sf::Font theFont;
-			theFont.loadFromFile(filePath);
-			return theFont;
-		}
+  SoftAssetManager() {}
 
-		sf::Font PassEmbededFont(int num)
-		{
-			sf::Font theFont;
+  sf::Font PassFont(std::string filePath) {
+    sf::Font theFont;
+    theFont.loadFromFile(filePath);
+    return theFont;
+  }
 
-			if (num == 1) 
-			{
-				theFont.loadFromMemory(montserrat, montserrat_length);
-			}
-			
-			return theFont;
-		}
+  sf::Font PassEmbededFont(int num) {
+    sf::Font theFont;
 
-	};
+    if (num == 1) {
+      theFont.loadFromMemory(montserrat, montserrat_length);
+    }
 
-	struct AllText 
-	{
+    return theFont;
+  }
+};
 
+struct AllText {
 
-		AllText() 
-		{
-			asset = new SoftAssetManager();
-			theHeaderFont = asset->PassEmbededFont(1);
+  AllText() {
+    asset = new SoftAssetManager();
+    theHeaderFont = asset->PassEmbededFont(1);
 
-			theHeaderText.setFont(theHeaderFont);
-			theHeaderText.setCharacterSize(45);
-			theHeaderText.setFillColor(sf::Color::Black);
+    theHeaderText.setFont(theHeaderFont);
+    theHeaderText.setCharacterSize(45);
+    theHeaderText.setFillColor(sf::Color::Black);
+  }
 
-		}
+  ~AllText() { delete asset; }
 
-		~AllText()
-		{
-			delete asset;
-		}
-		
-		void SetHeaderText(std::string word, sf::Vector2f position) 
-		{
-			theHeaderText.setString(word);
-			theHeaderText.setPosition(position);
-		}
+  void SetHeaderText(std::string word, sf::Vector2f position) {
+    theHeaderText.setString(word);
+    theHeaderText.setPosition(position);
+  }
 
-		void SetHeaderCharacterSize(int size) 
-		{
-			theHeaderText.setCharacterSize(size);
-		}
+  void SetHeaderCharacterSize(int size) {
+    theHeaderText.setCharacterSize(size);
+  }
 
-		void DrawHeaderTextToScreen(sf::RenderWindow& window) 
-		{
-			window.draw(theHeaderText);
-		}
+  void DrawHeaderTextToScreen(sf::RenderWindow &window) {
+    window.draw(theHeaderText);
+  }
 
+  sf::Text theHeaderText;
 
-		sf::Text theHeaderText;
+  sf::Font theHeaderFont;
 
-		sf::Font theHeaderFont;
+  SoftAssetManager *asset;
+};
 
-		SoftAssetManager* asset;
-	};
+class Button {
+public:
+  Button() {}
 
-	class Button
-	{
-	public:
+  Button(sf::Text &text) { tempText = &text; }
 
-		Button()
-		{
+  Button(sf::Sprite &sprite) { tempSprite = &sprite; }
 
-		}
+  virtual void CheckCollision(sf::Vector2f mousePosition) {
 
-		Button(sf::Text& text)
-		{
-	
-			tempText = &text;
-		}
+    if (tempText->getGlobalBounds().contains(mousePosition)) {
+      tempText->setFillColor(sf::Color::Green);
+    } else {
+      tempText->setFillColor(sf::Color::Black);
+    }
+  }
 
-		Button(sf::Sprite& sprite)
-		{
-			tempSprite = &sprite;
-		}
+  virtual void CheckSpriteCollision(sf::Vector2f mousePosition) {
 
-		virtual void CheckCollision(sf::Vector2f mousePosition)
-		{
+    isMousePressed = currentMouseState;
 
-			if (tempText->getGlobalBounds().contains(mousePosition))
-			{
-				tempText->setFillColor(sf::Color::Green);
-			}
-			else
-			{
-				tempText->setFillColor(sf::Color::Black);
-			}
-		}
+    if (tempSprite->getGlobalBounds().contains(mousePosition)) {
+      tempSprite->setColor(sf::Color::Green);
+    } else {
+      tempSprite->setColor(sf::Color::White);
+    }
+  }
 
-		virtual void CheckSpriteCollision(sf::Vector2f mousePosition)
-		{
+  virtual bool CanClick(sf::Vector2f mousePosition) {
 
-			isMousePressed = currentMouseState;
+    if (tempText->getGlobalBounds().contains(mousePosition)) {
+      if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+        return true;
+      }
+    }
+    return false;
+  }
 
-			if (tempSprite->getGlobalBounds().contains(mousePosition))
-			{
-				tempSprite->setColor(sf::Color::Green);
-			}
-			else
-			{
-				tempSprite->setColor(sf::Color::White);
-			}
-		}
+  virtual bool CanClick(sf::Event event, sf::Vector2f mousePosition) {
 
-		virtual bool CanClick(sf::Vector2f mousePosition)
-		{
+    if (event.type == sf::Event::MouseButtonPressed) {
+      if (event.mouseButton.button == sf::Mouse::Left &&
+          isMousePressed == false) {
+        if (tempText->getGlobalBounds().contains(mousePosition)) {
+          isMousePressed = true;
+          currentMouseState = isMousePressed;
+        }
+      }
+    }
 
-			if (tempText->getGlobalBounds().contains(mousePosition))
-			{
-				if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-				{
-					return true;
-				}
-			}
-			return false;
+    if (event.type == sf::Event::MouseButtonReleased && currentMouseState) {
+      if (event.mouseButton.button == sf::Mouse::Left) {
+        if (tempText->getGlobalBounds().contains(mousePosition)) {
+          currentMouseState = false;
+          return true;
+        }
+      }
+    }
 
-		}
+    return false;
+  }
 
-		virtual bool CanClick(sf::Event event, sf::Vector2f mousePosition)
-		{
+  virtual bool CanClickSprite(sf::Vector2f mousePosition) {
 
-			if (event.type == sf::Event::MouseButtonPressed)
-			{
-				if (event.mouseButton.button == sf::Mouse::Left && isMousePressed == false)
-				{
-					if (tempText->getGlobalBounds().contains(mousePosition))
-					{
-						isMousePressed = true;
-						currentMouseState = isMousePressed;
-						
+    if (tempSprite->getGlobalBounds().contains(mousePosition)) {
+      if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+        return true;
+      }
+    }
+    return false;
+  }
 
-					}
-				}
-			}
+  virtual bool CanClickSprite(sf::Event event, sf::Vector2f mousePosition) {
 
-			if (event.type == sf::Event::MouseButtonReleased && currentMouseState)
-			{
-				if (event.mouseButton.button == sf::Mouse::Left)
-				{
-					if (tempText->getGlobalBounds().contains(mousePosition))
-					{
-						currentMouseState = false;
-						return true;
+    if (event.type == sf::Event::MouseButtonPressed) {
+      if (event.mouseButton.button == sf::Mouse::Left &&
+          isMousePressed == false) {
+        if (tempSprite->getGlobalBounds().contains(mousePosition)) {
+          isMousePressed = true;
+          currentMouseState = isMousePressed;
+        }
+      }
+    }
 
-					}
-				}
-			}
+    if (event.type == sf::Event::MouseButtonReleased && currentMouseState) {
+      if (event.mouseButton.button == sf::Mouse::Left) {
+        if (tempSprite->getGlobalBounds().contains(mousePosition)) {
+          currentMouseState = false;
+          return true;
+        }
+      }
+    }
 
+    return false;
+  }
 
+  void Reset() {
+    isMousePressed = false;
+    currentMouseState = false;
+  }
 
-			return false;
+  bool currentMouseState = false;
+  bool isMousePressed = false;
 
-		}
+protected:
+  sf::Text *tempText = nullptr;
+  sf::Sprite *tempSprite = nullptr;
+};
 
-
-		virtual bool CanClickSprite(sf::Vector2f mousePosition)
-		{
-
-			if (tempSprite->getGlobalBounds().contains(mousePosition))
-			{
-				if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-				{
-					return true;
-				}
-			}
-			return false;
-
-		}
-
-		virtual bool CanClickSprite(sf::Event event, sf::Vector2f mousePosition)
-		{
-		
-			if (event.type == sf::Event::MouseButtonPressed) 
-			{
-				if (event.mouseButton.button == sf::Mouse::Left && isMousePressed == false)
-				{
-					if (tempSprite->getGlobalBounds().contains(mousePosition))
-					{
-						isMousePressed = true;
-						currentMouseState = isMousePressed;
-						
-
-					}
-				}
-			}
-
-			if (event.type == sf::Event::MouseButtonReleased && currentMouseState)
-			{
-				if (event.mouseButton.button == sf::Mouse::Left)
-				{
-					if (tempSprite->getGlobalBounds().contains(mousePosition))
-					{
-						currentMouseState = false;
-						return true;
-
-					}
-				}
-			}
-
-
-			return false;
-
-		}
-
-		bool currentMouseState = false;
-		bool isMousePressed = false;
-
-	protected:
-
-		sf::Text* tempText = nullptr;
-		sf::Sprite* tempSprite = nullptr;
-	};
-
-}
+} // namespace Dinzai

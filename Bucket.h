@@ -17,24 +17,27 @@ struct Bucket {
     while (current) {
       Entity *toDelete = current;
       current = current->next;
+      toDelete->next = nullptr;
       delete toDelete;
     }
     manyEntity.head = nullptr;
+    manyEntity.tail = nullptr;
+    manyEntity.index = 0;
   }
 
   void SetEntity(Viper::Vec2 &position, float radius, Viper::Vec3 &values) {
     otherManyEntity.AddEntity(position, radius, values);
   }
 
-  void ClearOtherEntities() 
-  {
-    EntityF *current = &otherManyEntity.start;
+  void ClearOtherEntities() {
+    EntityF *current = otherManyEntity.start.e; 
     while (current) {
       EntityF *toDelete = current;
       current = current->e;
       delete toDelete;
     }
-    manyEntity.head = nullptr;
+    otherManyEntity.start.e = nullptr; 
+    otherManyEntity.index = 0;        
   }
 
   LinkedEntity manyEntity;

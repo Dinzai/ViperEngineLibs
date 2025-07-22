@@ -1,8 +1,6 @@
 #pragma once
 #include "Trig.h"
 
-#include <iostream>
-
 struct EntityF : public GameObject::SimpleObject {
   EntityF() { e = nullptr; }
 

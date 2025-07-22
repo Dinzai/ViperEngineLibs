@@ -1,5 +1,7 @@
 # ViperEngineLibs
- Open source Viper engine for Game Design 
+ Open source Viper engine for Game Design ------------> Snake Game Demo
+
+ ![Snake Game!](snakeGame.png)
 
  This is not a comercial engine
 
@@ -12,7 +14,14 @@
  rather, I challenge you to look into not relying on libaray's just because it is easy. Try to grow,
  make some mistakes, and enjoy the journey. 
 
+Install SFML version 2.61
+Install cmake/g++
 
-Currently, the game has a bug when restarting the 2nd time, memory leak! 
+run make 
+in the same folder as all the header files, and main.cpp/Montserrat.cpp
+
+In linux, run ./Snake
+
+in windows? idk, i'm not on windows atm :P on a serious note, likely works if ran in windows
 
  

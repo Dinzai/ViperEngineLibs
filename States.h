@@ -18,7 +18,7 @@ namespace Snake
         End,
     };
 
-    int currentGameState = 0;
+    int currentGameState = 1;
   };
    
 

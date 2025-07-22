@@ -18,7 +18,7 @@
 
 #include "Basic.h"
 #include "Entity.h"
-#include <iostream>
+
 
 struct Chunk : public sf::RectangleShape {
   Chunk() { c = nullptr; }
@@ -144,6 +144,12 @@ struct Screen {
   }
 
   void DrawEndButtons() { endText.DrawHeaderTextToScreen(window); }
+
+  void ButtonReset()
+  {
+    titleButton.Reset();
+    endButton.Reset();
+  }
 
   sf::RectangleShape MakeDrawableRect(Entity &obj) {
     sf::RectangleShape shape;

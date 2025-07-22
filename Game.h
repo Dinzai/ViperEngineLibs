@@ -2,14 +2,6 @@
 #include "Entity.h"
 #include "States.h"
 #include "Window.h"
-#include "iostream"
-#include <SFML/Graphics/RectangleShape.hpp>
-#include <SFML/System/Time.hpp>
-#include <SFML/System/Vector2.hpp>
-#include <SFML/Window/Context.hpp>
-#include <SFML/Window/Event.hpp>
-#include <SFML/Window/Keyboard.hpp>
-#include <SFML/Window/Window.hpp>
 
 struct Game {
 
@@ -31,10 +23,10 @@ private:
     }
   }
 
-public:
-  Game() {
 
-    state.currentGameState = state.Title;
+  void Init()
+  {
+    screen.ButtonReset();
     Viper::Vec2 windowSize(ScreenWidth, ScreenHeight); // set the grid
     chunkSize = grid.CalculateGridChunk(windowSize);
     chunkSize.x = chunkSize.x / 8;
@@ -73,6 +65,14 @@ public:
     direction[0] = true;
 
     SpawnFruit();
+
+  }
+
+public:
+  Game() 
+  {
+    Init();
+
   }
 
 private:
@@ -292,14 +292,19 @@ private:
     Entity *cur = b.manyEntity.head;
     int idx = 0;
     while (cur) {
-      std::cout << "Segment " << idx++ << ": (" << cur->position->x << ", "
-                << cur->position->y << ")\n";
+      Viper::Println("Segment ");
+      Viper::Println(idx++);
+      Viper::Println(": (");
+      Viper::Println(cur->position->x);
+      Viper::Println(", ");
+      Viper::Println(cur->position->y);
+      Viper::Println(")\n");
+
       cur = cur->next;
     }
   }
 
   void GameUpdate() {
-    // DebugPrintSnake();
     CheckCollision();
     screen.deltaTime = screen.mainClock.getElapsedTime();
     if (screen.deltaTime.asSeconds() > time) {
@@ -374,6 +379,8 @@ private:
   void TitleUpdate() {
     GetMousePos();
     screen.UpdateButtons();
+    
+    
   }
 
   void TitleFixedUpdate() {
@@ -381,10 +388,12 @@ private:
       if (screen.event.type == sf::Event::Closed) {
         screen.window.close();
       }
-      state.currentGameState = 1;
 
-      int next = screen.FixedUpdateButtons();
-      state.currentGameState += next;
+      if(screen.FixedUpdateButtons())
+      {
+        state.currentGameState = state.Game;
+      }
+      
     }
   }
 
@@ -398,40 +407,15 @@ private:
   void Reset() {
     b.ClearEntities();
     f.ClearEntities();
-    fruit = nullptr;
-    tail = nullptr;
-    snake = nullptr;
-    direction[0] = true;
-    direction[1] = false;
-    direction[2] = false;
-    direction[3] = false;
-    shouldGrow = false;
-    currentBounds = 0;
-
-    Viper::Vec2 *pos = new Viper::Vec2(25, 25);
-    Viper::Vec2 *size = new Viper::Vec2(20, 20);
-    Viper::Vec3 *values = new Viper::Vec3(0, 255, 0);
-    Viper::Vec2 *tailPos =
-        new Viper::Vec2(pos->x - size->x - tailOffset, pos->y);
-    Viper::Vec2 *posF = new Viper::Vec2(400, 200);
-    float sizeF = 10;
-    Viper::Vec3 *valuesF = new Viper::Vec3(255, 0, 0);
-
-    b.SetEntity(*pos, *size, *values);
-    b.SetEntity(*tailPos, *size, *values);
-    snake = b.manyEntity.GetNode(0);
-    tail = b.manyEntity.GetNode(1);
-
-    f.SetEntity(*posF, sizeF, *valuesF);
-    fruit = nullptr;
-
-    SpawnFruit();
-    state.currentGameState = state.Game;
+    Init();
+   
   }
 
   void EndUpdate() {
     GetMousePos();
     screen.UpdateEndButtons();
+    
+
   }
 
   void EndFixedUpdate() {
@@ -439,8 +423,10 @@ private:
       if (screen.event.type == sf::Event::Closed) {
         screen.window.close();
       }
-      if (screen.FixedUpdateEndButtons()) {
+      if (screen.FixedUpdateEndButtons()) 
+      {
         Reset();
+        state.currentGameState = state.Game;     
       }
     }
   }
@@ -516,4 +502,5 @@ private:
   bool shouldGrow = false;
   int currentBounds = 0;
   enum Bounds { Up = 1, Down, Left, Right };
+
 };
