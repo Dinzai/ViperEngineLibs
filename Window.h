@@ -114,11 +114,11 @@ struct Screen {
   void SetButtons() {
     startText.SetHeaderText("Press Start", sf::Vector2f(200, 200));
     endText.SetHeaderText("Try Again?", sf::Vector2f(200, 200));
-    titleButton = Dinzai::Button(startText.theHeaderText);
-    endButton = Dinzai::Button(endText.theHeaderText);
+    titleButton = Dinzai::Button(*startText.theHeaderText);
+    endButton = Dinzai::Button(*endText.theHeaderText);
   }
 
-  Screen() : window(sf::VideoMode(ScreenWidth, ScreenHeight), "Snake") {
+  Screen() : window(sf::VideoMode(sf::Vector2u(ScreenWidth, ScreenHeight)), "Snake") {
     chunks = new LinkedChunk();
     SetButtons();
   }
@@ -126,9 +126,7 @@ struct Screen {
   void UpdateButtons() { titleButton.CheckCollision(mousePos); }
 
   int FixedUpdateButtons() {
-    if (titleButton.CanClick(event, mousePos)) {
-      return 1;
-    }
+    // This method is deprecated - use titleButton.CanClick directly in event loop
     return 0;
   }
 
@@ -137,9 +135,7 @@ struct Screen {
   void UpdateEndButtons() { endButton.CheckCollision(mousePos); }
 
   bool FixedUpdateEndButtons() {
-    if (endButton.CanClick(event, mousePos)) {
-      return true;
-    }
+    // This method is deprecated - use endButton.CanClick directly in event loop
     return false;
   }
 
@@ -205,8 +201,8 @@ struct Screen {
     for (int i = 0; i < worldWidth; i++) {
       for (int j = 0; j < worldHeight; j++) {
         sf::RectangleShape chunk = MakeChunk(chunkSize);
-        chunk.setPosition(i * chunk.getSize().x + offset,
-                          j * chunk.getSize().y + offset);
+        chunk.setPosition(sf::Vector2f(i * chunk.getSize().x + offset,
+                          j * chunk.getSize().y + offset));
         chunks->AddEntity(chunk);
       }
     }
@@ -216,7 +212,6 @@ struct Screen {
 
   sf::Clock mainClock;
   sf::Time deltaTime;
-  sf::Event event;
   sf::RenderWindow window;
   LinkedChunk *chunks;
 

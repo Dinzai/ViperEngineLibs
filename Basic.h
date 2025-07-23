@@ -13,7 +13,7 @@ struct SoftAssetManager {
 
   sf::Font PassFont(std::string filePath) {
     sf::Font theFont;
-    theFont.loadFromFile(filePath);
+    theFont.openFromFile(filePath);
     return theFont;
   }
 
@@ -21,7 +21,7 @@ struct SoftAssetManager {
     sf::Font theFont;
 
     if (num == 1) {
-      theFont.loadFromMemory(montserrat, montserrat_length);
+      theFont.openFromMemory(montserrat, montserrat_length);
     }
 
     return theFont;
@@ -34,27 +34,30 @@ struct AllText {
     asset = new SoftAssetManager();
     theHeaderFont = asset->PassEmbededFont(1);
 
-    theHeaderText.setFont(theHeaderFont);
-    theHeaderText.setCharacterSize(45);
-    theHeaderText.setFillColor(sf::Color::Black);
+    // Create text with the font (hack, but I don't know enough about SFML yet)
+    theHeaderText = new sf::Text(theHeaderFont, "", 45);
+    theHeaderText->setFillColor(sf::Color::Black);
   }
 
-  ~AllText() { delete asset; }
+  ~AllText() { 
+    delete asset; 
+    delete theHeaderText;
+  }
 
   void SetHeaderText(std::string word, sf::Vector2f position) {
-    theHeaderText.setString(word);
-    theHeaderText.setPosition(position);
+    theHeaderText->setString(word);
+    theHeaderText->setPosition(position);
   }
 
   void SetHeaderCharacterSize(int size) {
-    theHeaderText.setCharacterSize(size);
+    theHeaderText->setCharacterSize(size);
   }
 
   void DrawHeaderTextToScreen(sf::RenderWindow &window) {
-    window.draw(theHeaderText);
+    window.draw(*theHeaderText);
   }
 
-  sf::Text theHeaderText;
+  sf::Text *theHeaderText;
 
   sf::Font theHeaderFont;
 
@@ -92,7 +95,7 @@ public:
   virtual bool CanClick(sf::Vector2f mousePosition) {
 
     if (tempText->getGlobalBounds().contains(mousePosition)) {
-      if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+      if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
         return true;
       }
     }
@@ -100,9 +103,8 @@ public:
   }
 
   virtual bool CanClick(sf::Event event, sf::Vector2f mousePosition) {
-
-    if (event.type == sf::Event::MouseButtonPressed) {
-      if (event.mouseButton.button == sf::Mouse::Left &&
+    if (const auto* mouseButtonPressed = event.getIf<sf::Event::MouseButtonPressed>()) {
+      if (mouseButtonPressed->button == sf::Mouse::Button::Left &&
           isMousePressed == false) {
         if (tempText->getGlobalBounds().contains(mousePosition)) {
           isMousePressed = true;
@@ -111,8 +113,8 @@ public:
       }
     }
 
-    if (event.type == sf::Event::MouseButtonReleased && currentMouseState) {
-      if (event.mouseButton.button == sf::Mouse::Left) {
+    if (const auto* mouseButtonReleased = event.getIf<sf::Event::MouseButtonReleased>(); mouseButtonReleased && currentMouseState) {
+      if (mouseButtonReleased->button == sf::Mouse::Button::Left) {
         if (tempText->getGlobalBounds().contains(mousePosition)) {
           currentMouseState = false;
           return true;
@@ -126,7 +128,7 @@ public:
   virtual bool CanClickSprite(sf::Vector2f mousePosition) {
 
     if (tempSprite->getGlobalBounds().contains(mousePosition)) {
-      if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+      if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
         return true;
       }
     }
@@ -135,8 +137,8 @@ public:
 
   virtual bool CanClickSprite(sf::Event event, sf::Vector2f mousePosition) {
 
-    if (event.type == sf::Event::MouseButtonPressed) {
-      if (event.mouseButton.button == sf::Mouse::Left &&
+    if (const auto* mouseButtonPressed = event.getIf<sf::Event::MouseButtonPressed>()) {
+      if (mouseButtonPressed->button == sf::Mouse::Button::Left &&
           isMousePressed == false) {
         if (tempSprite->getGlobalBounds().contains(mousePosition)) {
           isMousePressed = true;
@@ -145,8 +147,8 @@ public:
       }
     }
 
-    if (event.type == sf::Event::MouseButtonReleased && currentMouseState) {
-      if (event.mouseButton.button == sf::Mouse::Left) {
+    if (const auto* mouseButtonReleased = event.getIf<sf::Event::MouseButtonReleased>(); mouseButtonReleased && currentMouseState) {
+      if (mouseButtonReleased->button == sf::Mouse::Button::Left) {
         if (tempSprite->getGlobalBounds().contains(mousePosition)) {
           currentMouseState = false;
           return true;
