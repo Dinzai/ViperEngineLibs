@@ -318,13 +318,13 @@ private:
   }
 
   void GameFixedUpdate() {
-    while (auto event = screen.window.pollEvent()) {
-      if (event->getIf<sf::Event::Closed>()) {
+    while (screen.window.pollEvent(screen.event)) {
+      if (screen.event.type == sf::Event::Closed) {
         screen.window.close();
       }
 
-      if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
-        if (keyPressed->code == sf::Keyboard::Key::W &&
+      if (screen.event.type == sf::Event::KeyPressed) {
+        if (screen.event.key.code == sf::Keyboard::W &&
             currentBounds != Bounds::Up) {
           currentBounds = 0;
           direction[0] = false;
@@ -333,7 +333,7 @@ private:
           direction[2] = true;
         }
 
-        if (keyPressed->code == sf::Keyboard::Key::S &&
+        if (screen.event.key.code == sf::Keyboard::S &&
             currentBounds != Bounds::Down) {
           currentBounds = 0;
           direction[0] = false;
@@ -342,7 +342,7 @@ private:
           direction[3] = true;
         }
 
-        if (keyPressed->code == sf::Keyboard::Key::A &&
+        if (screen.event.key.code == sf::Keyboard::A &&
             currentBounds != Bounds::Left) {
           currentBounds = 0;
           direction[0] = false;
@@ -351,7 +351,7 @@ private:
           direction[1] = true;
         }
 
-        if (keyPressed->code == sf::Keyboard::Key::D &&
+        if (screen.event.key.code == sf::Keyboard::D &&
             currentBounds != Bounds::Right) {
 
           currentBounds = 0;
@@ -384,14 +384,16 @@ private:
   }
 
   void TitleFixedUpdate() {
-    while (auto event = screen.window.pollEvent()) {
-      if (event->getIf<sf::Event::Closed>()) {
+    while (screen.window.pollEvent(screen.event)) {
+      if (screen.event.type == sf::Event::Closed) {
         screen.window.close();
       }
 
-      if (screen.titleButton.CanClick(*event, screen.mousePos)) {
+      if(screen.FixedUpdateButtons())
+      {
         state.currentGameState = state.Game;
       }
+      
     }
   }
 
@@ -417,11 +419,12 @@ private:
   }
 
   void EndFixedUpdate() {
-    while (auto event = screen.window.pollEvent()) {
-      if (event->getIf<sf::Event::Closed>()) {
+    while (screen.window.pollEvent(screen.event)) {
+      if (screen.event.type == sf::Event::Closed) {
         screen.window.close();
       }
-      if (screen.endButton.CanClick(*event, screen.mousePos)) {
+      if (screen.FixedUpdateEndButtons()) 
+      {
         Reset();
         state.currentGameState = state.Game;     
       }
