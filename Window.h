@@ -17,97 +17,8 @@
 #include <SFML/Window/VideoMode.hpp>
 
 #include "Basic.h"
-#include "Entity.h"
+#include "SFMLEntity.h"
 
-
-struct Chunk : public sf::RectangleShape {
-  Chunk() { c = nullptr; }
-
-  Chunk *c;
-};
-
-struct LinkedChunk {
-
-  LinkedChunk() {}
-
-  ~LinkedChunk() {
-    Chunk *current = start.c;
-    while (current != nullptr) {
-      Chunk *next = current->c;
-      delete current;
-      current = next;
-    }
-    start.c = nullptr;
-  }
-
-  void AddEntity(sf::RectangleShape &shape) {
-    Chunk *current = &start;
-
-    while (current->c != nullptr) {
-      current = current->c;
-    }
-
-    current->c = new Chunk();
-    current->c->setSize(shape.getSize());
-    current->c->setPosition(shape.getPosition());
-    current->c->setFillColor(sf::Color::Black);
-    current->c->setOutlineThickness(2.0);
-    current->c->setOutlineColor(sf::Color::White);
-  }
-
-  Chunk *GetNode(int index) {
-    Chunk *current = &start;
-    for (int i = 0; i < index; i++) {
-      if (current->c == nullptr)
-        return nullptr;
-
-      current = current->c;
-    }
-    return current;
-  }
-
-  void RemoveNode(int index) {
-    if (index < 0)
-      return;
-
-    if (index == 0) {
-      Chunk *nodeToRemove = start.c;
-      if (nodeToRemove != nullptr) {
-        start.c = nodeToRemove->c;
-        nodeToRemove->c = nullptr;
-        delete nodeToRemove;
-      }
-      return;
-    }
-
-    Chunk *current = &start;
-    for (int i = 0; i < index; i++) {
-      if (current->c == nullptr)
-        return;
-      current = current->c;
-    }
-
-    Chunk *nodeToRemove = current->c;
-    if (nodeToRemove == nullptr)
-      return;
-
-    current->c = nodeToRemove->c;
-    nodeToRemove->c = nullptr;
-    delete nodeToRemove;
-    index--;
-  }
-
-  void DrawAll(sf::RenderWindow &window) {
-    Chunk *current = start.c;
-
-    while (current != nullptr) {
-      window.draw(*current);
-      current = current->c;
-    }
-  }
-
-  Chunk start;
-};
 
 struct Screen {
 
@@ -120,6 +31,7 @@ struct Screen {
 
   Screen() : window(sf::VideoMode(ScreenWidth, ScreenHeight), "Snake") {
     chunks = new LinkedChunk();
+    otherChunks = new LinkedChunk();
     SetButtons();
   }
 
@@ -145,13 +57,31 @@ struct Screen {
 
   void DrawEndButtons() { endText.DrawHeaderTextToScreen(window); }
 
-  void ButtonReset()
-  {
+  void ButtonReset() {
     titleButton.Reset();
     endButton.Reset();
   }
 
   sf::RectangleShape MakeDrawableRect(Entity &obj) {
+    sf::RectangleShape shape;
+    sf::Vector2f size;
+    sf::Vector2f position;
+    sf::Color color;
+
+    color = sf::Color(obj.color->r, obj.color->g, obj.color->b, obj.color->a);
+    size = sf::Vector2f(sf::Vector2f(obj.size->x, obj.size->y));
+    position = sf::Vector2f(obj.position->x, obj.position->y);
+
+    shape.setSize(size);
+    shape.setPosition(position);
+    shape.setFillColor(color);
+    shape.setOutlineColor(sf::Color(30, 100, 30));
+    shape.setOutlineThickness(1.2);
+
+    return shape;
+  }
+
+  sf::RectangleShape MakeDrawableRect(EntityF &obj) {
     sf::RectangleShape shape;
     sf::Vector2f size;
     sf::Vector2f position;
@@ -187,6 +117,23 @@ struct Screen {
     return shape;
   }
 
+  sf::CircleShape MakeDrawableCircle(Entity &obj) {
+    sf::CircleShape shape;
+    float radius;
+    sf::Vector2f position;
+    sf::Color color;
+
+    color = sf::Color(obj.color->r, obj.color->g, obj.color->b, obj.color->a);
+    radius = obj.radius;
+    position = sf::Vector2f(obj.position->x, obj.position->y);
+
+    shape.setRadius(radius);
+    shape.setPosition(position);
+    shape.setFillColor(color);
+
+    return shape;
+  }
+
   sf::RectangleShape MakeChunk(Viper::Vec2 &size) {
 
     Viper::Vec2 *windowSize = &size;
@@ -205,9 +152,23 @@ struct Screen {
     for (int i = 0; i < worldWidth; i++) {
       for (int j = 0; j < worldHeight; j++) {
         sf::RectangleShape chunk = MakeChunk(chunkSize);
+        chunk.setFillColor(sf::Color::Red);
         chunk.setPosition(i * chunk.getSize().x + offset,
                           j * chunk.getSize().y + offset);
         chunks->AddEntity(chunk);
+      }
+    }
+  }
+
+  void MakeGrid(int worldWidth, int worldHeight, float spacing,
+                Viper::Vec2 &chunkSize, Viper::Vec2 buffer, LinkedChunk* theChunks, sf::Color color) {
+    for (int i = 0; i < worldWidth; i++) {
+      for (int j = 0; j < worldHeight; j++) {
+        sf::RectangleShape chunk = MakeChunk(chunkSize);
+        chunk.setFillColor(color);
+        chunk.setPosition(i * (chunk.getSize().x + spacing) + buffer.x,
+                          j * (chunk.getSize().y + spacing) + buffer.y);
+        theChunks->AddEntity(chunk);
       }
     }
   }
@@ -219,6 +180,7 @@ struct Screen {
   sf::Event event;
   sf::RenderWindow window;
   LinkedChunk *chunks;
+  LinkedChunk *otherChunks;
 
   Dinzai::AllText startText;
   Dinzai::AllText endText;

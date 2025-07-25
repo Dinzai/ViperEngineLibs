@@ -14,10 +14,9 @@ this file is for reuseable vector math caluclations
 
 #include "Debug.h"
 
-namespace Viper
-{
-  struct Vec2 { 
-  Vec2() : x(0), y(0) {}  
+namespace Viper {
+struct Vec2 {
+  Vec2() : x(0), y(0) {}
   Vec2(float a, float b) {
     this->x = a;
     this->y = b;
@@ -50,19 +49,17 @@ struct Colour {
   float r, g, b, a;
 };
 
- inline void Println(const char* s) {
-    Debug::Print{}(s);
-    Debug::Print{}("\n");
-  }
+inline void Println(const char *s) {
+  Debug::Print{}(s);
+  Debug::Print{}("\n");
+}
 
-  inline void Println(int n) {
-    Debug::Print{}(n);
-    Debug::Print{}("\n");
-  };
+inline void Println(int n) {
+  Debug::Print{}(n);
+  Debug::Print{}("\n");
+};
 
-
-} 
-
+} // namespace Viper
 
 namespace GameObject {
 
@@ -72,7 +69,6 @@ struct SimpleObject {
     size = new Viper::Vec2(0, 0);
     center = new Viper::Vec2(0, 0);
   }
-
 
   ~SimpleObject() {
     delete position;
@@ -84,8 +80,7 @@ struct SimpleObject {
 
   void SetPosition(float x, float y) { position = new Viper::Vec2(x, y); }
 
-  void SetCenter(Viper::Vec2& size, Viper::Vec2& position) 
-  {
+  void SetCenter(Viper::Vec2 &size, Viper::Vec2 &position) {
 
     float halfWidth = size.x / 2;
     float halfHeight = size.y / 2;
@@ -96,8 +91,7 @@ struct SimpleObject {
     center = new Viper::Vec2(centerX, centerY);
   }
 
-  void SetCenter(float radius, Viper::Vec2& position)
-  {
+  void SetCenter(float radius, Viper::Vec2 &position) {
     float centerX = position.x + radius;
     float centerY = position.y + radius;
     center = new Viper::Vec2(centerX, centerY);
@@ -107,13 +101,25 @@ struct SimpleObject {
 
   Viper::Vec2 GetPosition() { return *position; }
 
-  void SetSize(float width, float height) { size = new Viper::Vec2(width, height); }
+  void SetSize(float width, float height) {
+    size = new Viper::Vec2(width, height);
+  }
 
   Viper::Vec2 GetSize() { return *size; }
 
   void SetRadius(float value) { radius = value; }
 
   float GetRadius() { return radius; }
+
+  void SetHealth(float hp)
+  {
+    this->health = hp;
+  }
+
+  void SetSpeed(float speed)
+  {
+    this->speed = speed;
+  }
 
   Viper::Vec2 *position;
   Viper::Vec2 *size;
@@ -125,54 +131,40 @@ struct SimpleObject {
   float radius;
 
   int index;
+
+  float health = 0;
+  float speed = 0;
 };
 
 } // namespace GameObject
 
+namespace Euler {
 
-namespace Euler
-{
+struct Grid {
 
-    struct Grid
-    {
+  Viper::Vec2 CalculateGridChunk(Viper::Vec2 &windowSize) {
 
-        Viper::Vec2 CalculateGridChunk(Viper::Vec2& windowSize)
-        {   
-          
-            if(windowSize.x == windowSize.y)
-            {
-              return windowSize;
-            }
-            Viper::Vec2 newChunk = Viper::Vec2(0, 0);
-            if(windowSize.y < windowSize.x)
-            {
-              float nextWidth = windowSize.x - windowSize.y;
-              newChunk = Viper::Vec2(nextWidth, windowSize.y);
+    if (windowSize.x == windowSize.y) {
+      return windowSize;
+    }
+    Viper::Vec2 newChunk = Viper::Vec2(0, 0);
+    if (windowSize.y < windowSize.x) {
+      float nextWidth = windowSize.x - windowSize.y;
+      newChunk = Viper::Vec2(nextWidth, windowSize.y);
+    }
 
+    if (windowSize.x < windowSize.y) {
+      float nextHeight = windowSize.y - windowSize.x;
+      newChunk = Viper::Vec2(windowSize.x, nextHeight);
+    }
 
-            }
+    return CalculateGridChunk(newChunk);
+  }
+};
 
-            if(windowSize.x < windowSize.y)
-            {
-              float nextHeight = windowSize.y - windowSize.x;
-              newChunk = Viper::Vec2(windowSize.x, nextHeight);
+} // namespace Euler
 
-
-            }
-
-          
-            return CalculateGridChunk(newChunk);
-
-        }
-
-    };
-
-}
-
-
-
-namespace Trig 
-{
+namespace Trig {
 
 struct Pythagorian {
   Pythagorian() {}
@@ -209,11 +201,11 @@ struct Pythagorian {
     }
   }
 
-    //distance check for collision detection between rectangles 
+  // distance check for collision detection between rectangles
 
-  bool RectangularCheck(GameObject::SimpleObject &obj1, GameObject::SimpleObject &obj2) 
-  {
-    //Object A
+  bool RectangularCheck(GameObject::SimpleObject &obj1,
+                        GameObject::SimpleObject &obj2) {
+    // Object A
     float halfWidthA = obj1.size->x / 2;
     float halfHeightA = obj1.size->y / 2;
 
@@ -223,10 +215,10 @@ struct Pythagorian {
     float topEdgeA = obj1.center->y - halfHeightA;
     float bottomEdgeA = obj1.center->y + halfHeightA;
 
-    //Object B
+    // Object B
 
     float halfHeightB = obj2.size->y / 2;
-    float halfWidthB = obj2.size->x / 2; 
+    float halfWidthB = obj2.size->x / 2;
 
     float leftEdgeB = obj2.center->x - halfWidthB;
     float rightEdgeB = obj2.center->x + halfWidthB;
@@ -249,23 +241,22 @@ struct Pythagorian {
     return true;
   }
 
-  //distance check for collision detection between rectangles and circles
+  // distance check for collision detection between rectangles and circles
   bool RectangularToCircleCheck(GameObject::SimpleObject &obj1,
-                        GameObject::SimpleObject &obj2)
-  {
+                                GameObject::SimpleObject &obj2) {
 
-    //object A
+    // object A
 
     float halfWidthA = obj1.size->x / 2;
     float halfHeightA = obj1.size->y / 2;
- 
+
     float leftEdgeA = obj1.center->x - halfWidthA;
     float rightEdgeA = obj1.center->x + halfWidthA;
 
-    float topEdgeA = obj1.center->y - halfHeightA; 
+    float topEdgeA = obj1.center->y - halfHeightA;
     float bottomEdgeA = obj1.center->y + halfHeightA;
 
-    //Object B
+    // Object B
 
     float radius = obj2.radius;
 
@@ -273,7 +264,7 @@ struct Pythagorian {
     float centerY = obj2.center->y;
 
     float leftEdgeB = centerX - radius;
-    float rightEdgeB = centerX +  radius;
+    float rightEdgeB = centerX + radius;
 
     float topEdgeB = centerY - radius;
     float bottomEdgeB = centerY + radius;
@@ -292,35 +283,47 @@ struct Pythagorian {
     }
     return true;
   }
-
 };
-} 
+} // namespace Trig
 
-namespace PRandom
-{
+namespace PRandom {
 
-  struct Random
-  {
-      int RandomInt(int min, int max)
-      {
-        int difference = max - min;
-        int random = rand() % difference + min;
-        return random; 
-      }
+struct Random {
+  int RandomInt(int min, int max) {
+    int difference = max - min;
+    int random = 0;
+    if (difference != 0) {
+      random = rand() % difference + min;
+    } else {
+      random = 0;
+    }
 
-      Viper::Vec2 RandomVec(Viper::Vec2& min, Viper::Vec2& max)
-      {
+    return random;
+  }
 
-        int differenceX = max.x - min.x;
-        int differenceY = max.y - min.y;
+  Viper::Vec2 RandomVec(Viper::Vec2 &min, Viper::Vec2 &max) {
 
-        int randomX = rand() % differenceX + min.x;
-        int randomY = rand() % differenceY + min.y;
+    int differenceX = max.x - min.x;
+    int differenceY = max.y - min.y;
+    int randomX = 0;
+    int randomY = 0;
 
-        Viper::Vec2 randomVec = Viper::Vec2(randomX, randomY);
-        return randomVec;
-      }
-  };
+    if (differenceX != 0) {
+      randomX = rand() % differenceX + min.x;
+    } else {
+      randomX = 0;
+    }
 
-  
-}
+    if (differenceY != 0) {
+
+      randomY = rand() % differenceY + min.y;
+    } else {
+      randomY = 0;
+    }
+
+    Viper::Vec2 randomVec = Viper::Vec2(randomX, randomY);
+    return randomVec;
+  }
+};
+
+} // namespace PRandom

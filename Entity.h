@@ -4,7 +4,6 @@
 struct EntityF : public GameObject::SimpleObject {
   EntityF() { e = nullptr; }
 
-
   EntityF *e;
 };
 
@@ -95,9 +94,7 @@ struct LinkedEntityF {
 struct Entity : public GameObject::SimpleObject {
   Entity() : next(nullptr) {}
 
-
   Entity *next;
-
 };
 
 struct LinkedEntity {
@@ -130,6 +127,24 @@ struct LinkedEntity {
     }
   }
 
+  void AddEntity(Viper::Vec2 &position, float radius, Viper::Vec3 &values) {
+    Entity *newNode = new Entity();
+    index++;
+    newNode->SetIndex(index);
+    newNode->SetRadius(radius);
+    newNode->SetPosition(position.x, position.y);
+    newNode->SetColor(values);
+    newNode->SetCenter(radius, position);
+
+    if (!head) {
+      head = newNode;
+      tail = newNode;
+    } else {
+      tail->next = newNode;
+      tail = newNode;
+    }
+  }
+
   Entity *GetNode(int index) {
     Entity *current = head;
     for (int i = 0; i < index; ++i) {
@@ -140,46 +155,60 @@ struct LinkedEntity {
     return current;
   }
 
-  void RemoveNode(int& index) {
-  if (index < 0 || head == nullptr)
-    return;
-
-  
-  if (index == 0) {
-    Entity* nodeToRemove = head;
-    head = head->next;
-    
-    if (head == nullptr)
-      tail = nullptr;
-    delete nodeToRemove;
-    --index;
-    return;
+  void SetHealth(int index, float hp)
+  {
+    Entity* current = GetNode(index);
+    current->SetHealth(hp);
   }
 
-  
-  Entity* current = head;
-  for (int i = 0; i < index - 1; ++i) {
-    if (current->next == nullptr)
-      return; 
-    current = current->next;
+  void SetSpeed(int index, float speed)
+  {
+    Entity* current = GetNode(index);
+    current->SetSpeed(speed);
   }
 
-  Entity* nodeToRemove = current->next;
-  if (nodeToRemove == nullptr)
-    return;
+  void RemoveNode(int &index) {
+    if (index < 0 || head == nullptr)
+      return;
 
-  current->next = nodeToRemove->next;
-  
-  if (nodeToRemove == tail)
-    tail = current;
-  
-  delete nodeToRemove;
-  --index;
-}
+    if (index == 0) {
+      Entity *nodeToRemove = head;
+      head = head->next;
 
+      if (head == nullptr)
+        tail = nullptr;
+      delete nodeToRemove;
+      --index;
+      return;
+    }
+  }
+
+  void RemoveNodeByPointer(Entity *node, Entity *prev) {
+    if (!node)
+      return;
+
+    if (node == head) {
+      head = head->next;
+      if (!head)
+        tail = nullptr;
+      delete node;
+      index--;
+      return;
+    }
+
+    if (prev) {
+      prev->next = node->next;
+      if (node == tail)
+        tail = prev;
+      delete node;
+      index--;
+    }
+  }
 
   Entity *head = nullptr;
   Entity *tail = nullptr;
   int index = 0;
-
 };
+
+
+

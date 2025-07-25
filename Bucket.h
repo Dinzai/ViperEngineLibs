@@ -10,6 +10,16 @@ struct Bucket {
     manyEntity.AddEntity(position, size, values);
   }
 
+  void SetHP(int index, float hp)
+  {
+    manyEntity.SetSpeed(index, hp);
+  }
+
+  void SetSpeed(int index, float speed)
+  {
+    manyEntity.SetSpeed(index, speed);
+  }
+
   void RemoveEntity(int index) { manyEntity.RemoveNode(index); }
 
   void ClearEntities() {
