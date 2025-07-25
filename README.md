@@ -1,5 +1,6 @@
 # ViperEngineLibs
  Open source Viper engine for Game Design ------------> Snake Game Demo
+					  ------------> Space Invaders Demo WIP
 
  ![Snake Game!](snakeGame.gif)
 
@@ -22,6 +23,11 @@ in the same folder as all the header files, and main.cpp/Montserrat.cpp
 
 In linux, run ./Snake
 
-in windows? idk, i'm not on windows atm :P on a serious note, likely works if ran in windows
+Space Invaders is a WIP
+
+
+--------------------------------------------------------------------------
+Contributors:
+	https://github.com/Tunas1337 ---> Port to SFML 3.0, bug fixes
 
  
