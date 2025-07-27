@@ -23,7 +23,7 @@ in the same folder as all the header files, and main.cpp/Montserrat.cpp
 
 In linux, run ./Snake
 
-Space Invaders is a WIP
+Space Invaders is a WIP, to run, in main, comment out Snake.h, and uncomment Spaceinvaders.h
 
 
 --------------------------------------------------------------------------

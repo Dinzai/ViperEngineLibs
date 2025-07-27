@@ -37,6 +37,29 @@ struct LinkedChunk {
     current->c->setOutlineColor(sf::Color::White);
   }
 
+  void AddEntity(Chunk* chunk) {
+  Chunk* current = &start;
+
+  while (current->c != nullptr) {
+    current = current->c;
+  }
+
+  index++;
+  current->c = new Chunk();
+  
+  current->c->setSize(chunk->getSize());
+  current->c->setPosition(chunk->getPosition());
+  current->c->setFillColor(chunk->getFillColor());
+  current->c->setOutlineThickness(chunk->getOutlineThickness());
+  current->c->setOutlineColor(sf::Color::White);
+
+  current->c->SetHealth(chunk->health);  
+  current->c->SetSpeed(chunk->speed);    
+
+  current->c->position = chunk->position;
+}
+
+
   void SetHealth(int index, float hp) {
     Chunk *current = GetNode(index);
     current->SetHealth(hp);

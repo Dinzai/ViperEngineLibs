@@ -142,8 +142,8 @@ struct Screen {
     sf::RectangleShape shape;
     shape.setSize(sf::Vector2f(newSize.x, newSize.y));
     shape.setFillColor(sf::Color::Black);
-    shape.setOutlineThickness(0.8);
-    shape.setOutlineColor(sf::Color::White);
+    //shape.setOutlineThickness(0.8);
+    //shape.setOutlineColor(sf::Color::White);
     return shape;
   }
 
